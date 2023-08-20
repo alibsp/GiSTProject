@@ -258,8 +258,72 @@ void Part::extractKeyValue(const char *term, char *key, char *value)
             break;
     }
 }
+FILE *Part::getPostingFileHandle(const char *path, const char *filename, unsigned char mode)
+{
+    QList<FileStateManager> &postingFiles=postingFilesForWrite;
+    if(mode==0)//for read else for write
+        postingFiles = postingFilesForRead;
 
-//*id = 43bf9957-e944-408a-a17d-ea7ac40ffea7 <-> term = "source_gitlab\0"
+    struct timespec currentNano;
+    clock_gettime(CLOCK_MONOTONIC,&currentNano);
+    //aldaghi
+    FILE* file = nullptr;
+    unsigned long min=1000000000;
+    int i=0, minIndex=0;
+    for (auto &dupFileInfo:postingFiles)
+    {
+        if(currentNano.tv_nsec - dupFileInfo.accessTime > 1000000 && dupFileInfo.accessCount)
+            dupFileInfo.accessCount--;
+        if(!file && strncmp(dupFileInfo.fileName, filename, KEY_LEN)==0)
+        {
+            file = dupFileInfo.fp;
+            dupFileInfo.accessCount+=100;
+            dupFileInfo.accessTime=currentNano.tv_nsec;
+        }
+        if(dupFileInfo.accessCount<min)
+        {
+            min = dupFileInfo.accessCount;
+            minIndex=i;
+        }
+        i++;
+    }
+
+    if(file==nullptr)
+    {
+        if(postingFiles.size()>=OPEN_FILE_LIMIT)
+            fclose(postingFiles[minIndex].fp);
+
+        file = openFile(path, "ab");
+        // Mahmoud
+        //******************************************************
+        FileStateManager stm;
+        strncpy(stm.fileName, filename, KEY_LEN);
+        stm.accessCount=100;
+        stm.fp = file;
+        clock_gettime(CLOCK_MONOTONIC, &currentNano);
+        stm.accessTime=currentNano.tv_nsec;
+        if(postingFiles.size()<OPEN_FILE_LIMIT)
+            postingFiles.append(stm);
+        else
+            postingFiles[minIndex]=stm;
+        //******************************************************
+    }
+    return file;
+}
+
+
+FILE * Part::getPostingFileHandleForWrite(const char *path, const char *filename)
+{
+    return getPostingFileHandle(path, filename, 1);
+}
+
+FILE *Part::getPostingFileHandleForRead(const char *path, const char *filename)
+{
+    return getPostingFileHandle(path, filename, 0);
+}
+
+
+
 void Part::insertTerm(const char *id, const char *term)
 {
     unsigned char binaryUUID[ID_LEN];  //shahab: I think we don't need to worry about allocating explict memory range for this, as it'll be assigned to another memory location later;
@@ -277,7 +341,10 @@ void Part::insertTerm(const char *id, const char *term)
     //strcat(value, id);  //shahab:duplicate error fix
 
     if(treeKey[0]==0)
-        strcpy(treeName, "nonekey");
+    {
+        strncpy(treeKey , treeName, KEY_LEN);
+        strncpy(treeName, "nonekey", KEY_LEN);
+    }
 #ifdef __linux__
     char path[200]="data/";
     char path_data_folder[200]="data/";
@@ -348,9 +415,6 @@ void Part::insertTerm(const char *id, const char *term)
         char fileName[100];
         hashFileName(treeKey, fileName);
 
-
-
-
         //Remove illigal '/' char from string so linux systems can accept our file names.
         //Or we can replace it with specialChar
         //And another limitation(in linux  and common filesystems) is maximum length for filename is 255(byte) and 4096 for directory+filename length
@@ -362,54 +426,7 @@ void Part::insertTerm(const char *id, const char *term)
         strcat(path_data_folder, fileName);
         strcat(path_data_folder, ".dat");
 
-        //mahmoud
-        struct timespec currentNano;
-
-        // int sz=dupValueOrderFiles.size();
-        //aldaghi
-        FILE* file = nullptr;
-        unsigned long min=1000000000;
-        int i=0, minIndex=0;
-        clock_gettime(CLOCK_MONOTONIC,&currentNano);
-        for (auto &dupFileInfo:dupValuefiles)
-        {
-            if(currentNano.tv_nsec - dupFileInfo.accessTime > 1000000 && dupFileInfo.accessCount)
-                dupFileInfo.accessCount--;
-            if(!file && strncmp(dupFileInfo.fileName, fileName, KEY_LEN)==0)
-            {
-                file = dupFileInfo.fp;
-                dupFileInfo.accessCount+=100;
-                dupFileInfo.accessTime=currentNano.tv_nsec;
-            }
-            if(dupFileInfo.accessCount<min)
-            {
-                min = dupFileInfo.accessCount;
-                minIndex=i;
-            }
-            i++;
-        }
-
-        if(file==nullptr)
-        {
-            if(dupValuefiles.size()>=OPEN_FILE_LIMIT)
-                fclose(dupValuefiles[minIndex].fp);
-
-            file = openFile(path_data_folder, "ab");
-            // dupValuefiles.append(QPair(path_data_folder, file));
-            // Mahmoud
-            //******************************************************
-            FileStateManager stm;
-            strncpy(stm.fileName, fileName, KEY_LEN);
-            stm.accessCount=100;
-            stm.fp = file;
-            clock_gettime(CLOCK_MONOTONIC,&currentNano);
-            stm.accessTime=currentNano.tv_nsec;
-            if(dupValuefiles.size()<OPEN_FILE_LIMIT)
-                dupValuefiles.append(stm);
-            else
-                dupValuefiles[minIndex]=stm;
-            //******************************************************
-        }
+        FILE *file = getPostingFileHandleForWrite(path_data_folder, fileName);
         fwrite(binaryUUID, ID_LEN, 1, file);
         if(isMkdirNow)
         {

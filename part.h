@@ -9,7 +9,7 @@
 #define DATA_LEN 164    //4+16*10   //Mr. Aladaghi
 #define KEY_LEN 101     //Mr. Aladaghi
 #define BUCKET_SIZE 10 //Mr.mahmoudi??    //Used in findkey() if(count == 10) section
-#define OPEN_FILE_LIMIT 500 //Mr. Aladaghi
+#define OPEN_FILE_LIMIT 200 //Mr. Aladaghi
 //--------------------|END MACROS|--------------------
 
 #include <fcntl.h>      //for open(2)   //Shahab
@@ -36,7 +36,8 @@ struct FileStateManager
 {
     //FileStateManager(const char* _path){
         //memcpy(path, _path, sizeof(_path));
-    FileStateManager(){
+    FileStateManager()
+    {
         accessTime=0;
         accessCount=0;
     }
@@ -76,11 +77,17 @@ signals:
 private:
     QMap<QString, gist*> gists;
     //QMap<QString, FILE*> files;
-    QList<FileStateManager> dupValuefiles;
+    QList<FileStateManager> postingFilesForRead;
+    QList<FileStateManager> postingFilesForWrite;
+
     void insertTerm(const char *id, const char *term);
     bool insertId(const char *id);
     void extractKeyValue(const char *term, char *key, char *value);
     QStringList findFiles(const QString &startDir, const QStringList &filters);
+
+    FILE *getPostingFileHandle(const char *path, const char *filename, unsigned char mode);
+    FILE *getPostingFileHandleForWrite(const char *path, const char *filename);
+    FILE *getPostingFileHandleForRead(const char *path, const char *filename);
 };
 
 #endif // PART_H
