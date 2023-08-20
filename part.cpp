@@ -118,6 +118,14 @@ void Part::dropGists()
         QFile file (list[i]);
         file.remove();
     }
+    QDir dir(path);
+    dir.setFilter(QDir::AllDirs | QDir::NoDotAndDotDot | QDir::NoSymLinks);
+    QStringList dirList = dir.entryList();
+    for (int i=0; i<dirList.size(); ++i)
+    {
+        QString newPath = QString("%1/%2").arg(dir.absolutePath()).arg(dirList.at(i));
+        dir.rmdir(newPath);
+    }
 }
 void Part::insertRecord(const char *id, const char *keys)
 {
@@ -169,6 +177,7 @@ QList<UUID> Part::findKey(const char * key_value)   //Mr. mahmoudi??
 
     char keyFound[KEY_LEN]={0};
     char data[DATA_LEN]={0};
+    unsigned int count=0;
     while (!eof)
     {
         if(myGist->fetch(cursor, (void *)&keyFound, keysz, (void *)&data, datasz, eof)!=RCOK)
@@ -178,7 +187,6 @@ QList<UUID> Part::findKey(const char * key_value)   //Mr. mahmoudi??
         }
         if (!eof)
         {
-            unsigned int count=0;
             memcpy(&count, data, 4);
             for(size_t i=0;i<count && i< 10;i++)
             {
@@ -188,102 +196,41 @@ QList<UUID> Part::findKey(const char * key_value)   //Mr. mahmoudi??
                 UUID uuid(bin_id);
                 results.append(uuid);
             }
-            if(count==10)
-            {
-                //go to posting tree
-                // can use printAllTree method pattern
-                //Then concat results
-
-                /*struct stat st;
-                long size;
-                int numberOfPages=0;
-                int recordsCount=0;
-                unsigned char buffer[16*BUCKET_SIZE];//160 here equal to 10 records
-                unsigned char curRecord[16];
-
-                //Make Postingfile path and  name
-                char postingFilePath[255];
-                snprintf(postingFilePath, 255, "data/%s/%s.dat", key, value);   //Shahab
-                strcat(postingFilePath, key);
-                strcat(postingFilePath, "/");
-                strcat(postingFilePath,value);
-                strcat(postingFilePath, ".dat");
-
-                 //1.CHECK FILE EXISTANCE:
-                 if (stat(postingFilePath, &st) == 0){
-                     // Posting File Exists and can be Read
-                     // Geting size of file
-                     size = st.st_size;
-                     recordsCount=(size/16); // get the record count in posting file 9986
-                     numberOfPages=recordsCount/BUCKET_SIZE; //BUCKET_SIZE:number of records that we want 998
-                     int remaining=recordsCount %  BUCKET_SIZE; // remaining records 6
-
-                      FILE *fp = openFile(postingFilePath, "r");
-                      if (fp != NULL)
-                      {
-                          for(int page=0;page<numberOfPages;page++){
-
-                              fread(buffer, sizeof(buffer), 1, fp);
-                              for(int j=0;j<BUCKET_SIZE;j++){
-                                  memcpy(&curRecord, buffer+(16*j), 16);
-                                  UUID uuid(curRecord);
-                                  results.append(uuid);
-                              }
-                          }
-
-                          if(remaining>0){
-                               //read last page for remaining data that is les tha a complete page
-                              unsigned char reamainingRecordsbuffer[16*remaining];
-                              fread(reamainingRecordsbuffer, sizeof(reamainingRecordsbuffer), 1, fp);
-                              for(int j=0;j<remaining;j++){
-                                  memcpy(&curRecord, reamainingRecordsbuffer+(16*j), 16);
-                                  UUID uuid(curRecord);
-                                  results.append(uuid);
-                              }
-                          }
-                          fclose(fp);
-
-                      }
-
-                 }
-
-
-
-
-            }*/
-            //---------------------------------------------|shahab|----------------------------------------------------
-            char postingFilePath[255];
-            int postingFileFd;
-            struct stat postingFileStatBuffer;
-            int readBytes = 0;
-            unsigned char postingFileReadBuffer[PAGING_COUNT*RECORD_SIZE];
-            unsigned char postingFileChunkBuffer[RECORD_SIZE];
-            char postingFileIsEof = 0;
-            char* binToHexBuffer[37];
-
-            snprintf(postingFilePath, 255, "data/%s/%s.dat", key, value);   //Shahab
-            if( (postingFileFd = openFileV2(postingFilePath, O_RDONLY | O_NOATIME)) > -1 )
-            {
-                 fstat(postingFileFd, &postingFileStatBuffer);
-                 //fprintf(stderr, "file size: %ld\n", postingFileStatBuffer.st_size/16);
-                 while(!postingFileIsEof)
-                 {
-                      //fprintf(stderr, "page numebr: %d\n", currentPage);
-                      readBytes =  readPostingFile(postingFileFd, postingFileStatBuffer.st_size/16, postingFileReadBuffer, &postingFileIsEof);
-                      for(int i =0; i<PAGING_COUNT; i++)
-                      {
-                          memcpy(postingFileChunkBuffer, postingFileReadBuffer+(i*RECORD_SIZE), 16);
-                          //binToHexStr(postingFileChunkBuffer, &binToHexBuffer);
-                          //printf("[%d]: %s\n", i, binToHexBuffer);
-                          UUID Hexuuid(postingFileChunkBuffer);
-                          results.append(Hexuuid);
-                      }
-                 }
-            }
-            closePostingFd(postingFileFd);
-
-
         }
+    }
+    if(count==11)//go to postingFile
+    {
+        //---------------------------------------------|shahab|----------------------------------------------------
+        char postingFilePath[255];
+        int postingFileFd;
+        struct stat postingFileStatBuffer;
+        int readBytes = 0;
+        unsigned char postingFileReadBuffer[PAGING_COUNT*RECORD_SIZE];
+        unsigned char postingFileChunkBuffer[RECORD_SIZE];
+        char postingFileIsEof = 0;
+        char* binToHexBuffer[37];
+        char fileName[100];
+        hashFileName(value, fileName);
+        snprintf(postingFilePath, 255, "data/%s/%s.dat", key, fileName);   //Shahab
+        if( (postingFileFd = openFileV2(postingFilePath, O_RDONLY | O_NOATIME)) > -1 )
+        {
+            fstat(postingFileFd, &postingFileStatBuffer);
+            //fprintf(stderr, "file size: %ld\n", postingFileStatBuffer.st_size/16);
+            while(!postingFileIsEof)
+            {
+                //fprintf(stderr, "page numebr: %d\n", currentPage);
+                readBytes =  readPostingFile(postingFileFd, postingFileStatBuffer.st_size/16, postingFileReadBuffer, &postingFileIsEof);
+                for(int i =0; i<PAGING_COUNT; i++)
+                {
+                    memcpy(postingFileChunkBuffer, postingFileReadBuffer+(i*RECORD_SIZE), 16);
+                    //binToHexStr(postingFileChunkBuffer, &binToHexBuffer);
+                    //printf("[%d]: %s\n", i, binToHexBuffer);
+                    UUID Hexuuid(postingFileChunkBuffer);
+                    results.append(Hexuuid);
+                }
+            }
+        }
+        closePostingFd(postingFileFd);
     }
     //cout<<"Execute Time: "<<timer.nsecsElapsed()<<" ns, record count:"<<results.count()<<endl;
     return results;
@@ -362,8 +309,8 @@ void Part::insertTerm(const char *id, const char *term)
     //if -> bloom check (term)  -->0 --1>
     //TODO: Consider adding bloom filter
     unsigned int count=0;
-    if(strcmp(term, "source_gitlab")==0)
-        count=1;
+    //  if(strcmp(term, "source_gitlab")==0)
+    // count=1;
 
 
     isKeyExist(treeName, treeKey, (void *)data);
@@ -392,63 +339,91 @@ void Part::insertTerm(const char *id, const char *term)
         //mahmoud
         //1.Check if directory not exists, then create directory
         struct stat st;
+        bool isMkdirNow=false;
         if (stat(path_data_folder, &st) == -1)
+        {
+            isMkdirNow = true;
             mkdir(path_data_folder, 0700);
+        }
 
-        //char * fileName=QCryptographicHash::hash(treeKey, QCryptographicHash::Md5).toHex().data();
+        char fileName[100];
+        hashFileName(treeKey, fileName);
+
+
+
+
         //Remove illigal '/' char from string so linux systems can accept our file names.
         //Or we can replace it with specialChar
         //And another limitation(in linux  and common filesystems) is maximum length for filename is 255(byte) and 4096 for directory+filename length
-        checkAndRemoveIlligalChar(treeKey,'/');//Mahmoud
+        // checkAndRemoveIlligalChar(treeKey,'/');//Mahmoud
 
         //2.Create sub Tree of binaryUUID's:
         //2.1.make name of tree file
         strcat(path_data_folder, "/");
-        strcat(path_data_folder, treeKey);
+        strcat(path_data_folder, fileName);
         strcat(path_data_folder, ".dat");
 
         //mahmoud
         struct timespec currentNano;
 
-
+        // int sz=dupValueOrderFiles.size();
         //aldaghi
-        if(dupValueOrderFiles.size()>100)
-        {
-            //dupValueOrderFiles
-            QString filepath=dupValueOrderFiles.first().first.path;
-            FILE* oldFile = dupValueOrderFiles.first().second;
-            fclose(oldFile);
-            dupValuefiles.removeAt(0);
-        }
         FILE* file = nullptr;
-        for (auto dupFileInfo:dupValueOrderFiles)
+        unsigned long min=1000000000;
+        int i=0, minIndex=0;
+        for (auto dupFileInfo:dupValuefiles)
         {
-            if(dupFileInfo.first.path==QString(path_data_folder))
+            clock_gettime(CLOCK_MONOTONIC,&currentNano);
+            if(currentNano.tv_nsec - dupFileInfo.accessTime > 1000000 && dupFileInfo.accessCount)
+                dupFileInfo.accessCount--;
+            if(dupFileInfo.path==QString(path_data_folder))
             {
-                file = dupFileInfo.second;
-                dupFileInfo.first.accessCount++;
-                clock_gettime(CLOCK_MONOTONIC,&currentNano);
-                dupFileInfo.first.accessTime=currentNano.tv_nsec;
-                break;
+                file = dupFileInfo.fp;
+                dupFileInfo.accessCount+=100;
+                dupFileInfo.accessTime=currentNano.tv_nsec;
             }
+            if(dupFileInfo.accessCount<min)
+            {
+                min = dupFileInfo.accessCount;
+                minIndex=i;
+            }
+            dupValuefiles[i]=dupFileInfo;
+            i++;
         }
+
         if(file==nullptr)
         {
-            file = openFile(path_data_folder, "ab");
-            dupValuefiles.append(QPair(path_data_folder, file));
+            if(dupValuefiles.size()>=100)
+                fclose(dupValuefiles[minIndex].fp);
 
+            file = openFile(path_data_folder, "ab");
+            // dupValuefiles.append(QPair(path_data_folder, file));
             // Mahmoud
             //******************************************************
             FileStateManager stm;
-            stm.path=path_data_folder;
+            strncpy(stm.path, path_data_folder, 100);
             stm.accessCount=1;
+            stm.fp = file;
             clock_gettime(CLOCK_MONOTONIC,&currentNano);
             stm.accessTime=currentNano.tv_nsec;
-            dupValueOrderFiles.append(QPair(stm, file));
-
+            if(dupValuefiles.size()<100)
+                dupValuefiles.append(stm);
+            else
+                dupValuefiles[minIndex]=stm;
             //******************************************************
         }
         fwrite(binaryUUID, ID_LEN, 1, file);
+        if(isMkdirNow)
+        {
+            memcpy(data, &count, 4);
+            if(count>1)
+            {
+                bt_query_t q(bt_query_t::bt_eq, (void *)treeKey);
+                myGist->remove(&q);
+            }
+            myGist->insert((void *) &treeKey, KEY_LEN, (void *) data, DATA_LEN);
+            myGist->flush();
+        }
         //fclose(file);
     }
     //TODO: add code to create new posting-tree if key exsists!
@@ -670,26 +645,11 @@ void Part::checkAndRemoveIlligalChar(char *str, char c){
     }
 }
 
-void Part::appropriateFileEliminate(){
-
-    //Make array list for sort beacuse of "accesscount" and "accessTime" changes every time
-    vector< pair <int,int> > vectOpenFiles;
-    int indexInList[100];
-    int fileAccessCount[100];
-    //int n = sizeof(arr)/sizeof(arr[0]);
-    int i=0;
-    for (auto orderFileInfo:dupValueOrderFiles)
-    {
-        indexInList[i]=i;
-        fileAccessCount[i]=orderFileInfo.first.accessCount;
-        vectOpenFiles.push_back( make_pair(fileAccessCount[i],indexInList[i]));
-
-    }
-    sort(vectOpenFiles.begin(), vectOpenFiles.end());
-
-
-
+void Part::hashFileName(char *fileName, char *output)
+{
+    strncpy(output, QCryptographicHash::hash(fileName, QCryptographicHash::Md5).toHex().data(), 100);
 }
+
 
 //Start Mr. MahmoudiNik
 //Continue by Aldaghi(Add unsigned char *data to reuslt)

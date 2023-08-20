@@ -39,11 +39,11 @@ struct FileStateManager
         accessTime=0;
         accessCount=0;
     }
-    char* path;
+    FILE* fp;
+    char path[255];
     long accessTime;
-    int accessCount;
+    unsigned int accessCount;
 };
-
 class Part : public QObject
 {
     Q_OBJECT
@@ -60,8 +60,8 @@ public:
     void testInserts();
     FILE *openFile(const char *fileName, const char *mode);
     void checkAndRemoveIlligalChar(char* str, char c);//mahmoud
-    void appropriateFileEliminate(); //Mahmoud
 
+    void hashFileName(char *fileName, char *output);
     //-------------------------------------------------------------------------------|Shahab|--------------------------------------------------------------------------------------------
     void hexStrToBin(const char* uuid, unsigned char *bins);   //shahab
     void binToHexStr(const unsigned char* bins, char* out); //shahab
@@ -75,8 +75,7 @@ signals:
 private:
     QMap<QString, gist*> gists;
     //QMap<QString, FILE*> files;
-    QList<QPair<QString, FILE*>> dupValuefiles;
-    QList<QPair<FileStateManager, FILE*>> dupValueOrderFiles;
+    QList<FileStateManager> dupValuefiles;
     void insertTerm(const char *id, const char *term);
     bool insertId(const char *id);
     void extractKeyValue(const char *term, char *key, char *value);
