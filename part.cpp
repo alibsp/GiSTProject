@@ -133,7 +133,7 @@ void Part::insertRecord(const char *id, const char *keys)
     elapsedTimer.start();
     char myId[37]={0};
     strcpy(myId, id);
-    //if(insertId(myId))
+    if(insertId(myId))
     {
         int i=0;
         char term[KEY_LEN]={0};
@@ -447,16 +447,16 @@ bool Part::insertId(const char *id)
     hexStrToBin(id, binaryUUID);
 
 #ifdef __linux__
-    char path[]="data/id.db";
+    char path[]="data/QGiSTId.db";
 #elif _WIN32
     char path[]="data\\id.db";
 #endif
 
-    gist *myGist  =gists["id"];
+    gist *myGist  =gists["QGiSTId"];
     if(myGist==nullptr)
     {
         myGist = new gist();
-        gists["id"] = myGist;
+        gists["QGiSTId"] = myGist;
         if(myGist->create(path, &bt_binary_key_ext)!=RCOK)
         {
             if(myGist->open(path)!=RCOK)
