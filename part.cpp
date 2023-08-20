@@ -293,7 +293,10 @@ FILE *Part::getPostingFileHandle(const char *path, const char *filename, unsigne
         if(postingFiles.size()>=OPEN_FILE_LIMIT)
             fclose(postingFiles[minIndex].fp);
 
-        file = openFile(path, "ab");
+        if(mode==0)
+            file = openFile(path, "rb");
+        else
+            file = openFile(path, "ab");
         // Mahmoud
         //******************************************************
         FileStateManager stm;
