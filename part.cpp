@@ -38,7 +38,7 @@ void Part::importCSV(QString filePath)
     QFile file(filePath);
     if (!file.open(QIODevice::ReadOnly))
     {
-        //cout << file.errorString();
+        cerr <<  file.errorString().toStdString()<<endl;
         return ;
     }
 
@@ -331,7 +331,6 @@ void Part::insertTerm(const char *id, const char *term)
     }
     else //count>10; postingTree
     {
-
         //Directory name: treeName
         //File name     : treeKey
         //key in tree   : binaryUUID
@@ -371,12 +370,12 @@ void Part::insertTerm(const char *id, const char *term)
         FILE* file = nullptr;
         unsigned long min=1000000000;
         int i=0, minIndex=0;
-        for (auto dupFileInfo:dupValuefiles)
+        clock_gettime(CLOCK_MONOTONIC,&currentNano);
+        for (auto &dupFileInfo:dupValuefiles)
         {
-            clock_gettime(CLOCK_MONOTONIC,&currentNano);
             if(currentNano.tv_nsec - dupFileInfo.accessTime > 1000000 && dupFileInfo.accessCount)
                 dupFileInfo.accessCount--;
-            if(dupFileInfo.path==QString(path_data_folder))
+            if(!file && strncmp(dupFileInfo.fileName, fileName, KEY_LEN)==0)
             {
                 file = dupFileInfo.fp;
                 dupFileInfo.accessCount+=100;
@@ -387,13 +386,12 @@ void Part::insertTerm(const char *id, const char *term)
                 min = dupFileInfo.accessCount;
                 minIndex=i;
             }
-            dupValuefiles[i]=dupFileInfo;
             i++;
         }
 
         if(file==nullptr)
         {
-            if(dupValuefiles.size()>=100)
+            if(dupValuefiles.size()>=OPEN_FILE_LIMIT)
                 fclose(dupValuefiles[minIndex].fp);
 
             file = openFile(path_data_folder, "ab");
@@ -401,12 +399,12 @@ void Part::insertTerm(const char *id, const char *term)
             // Mahmoud
             //******************************************************
             FileStateManager stm;
-            strncpy(stm.path, path_data_folder, 100);
-            stm.accessCount=1;
+            strncpy(stm.fileName, fileName, KEY_LEN);
+            stm.accessCount=100;
             stm.fp = file;
             clock_gettime(CLOCK_MONOTONIC,&currentNano);
             stm.accessTime=currentNano.tv_nsec;
-            if(dupValuefiles.size()<100)
+            if(dupValuefiles.size()<OPEN_FILE_LIMIT)
                 dupValuefiles.append(stm);
             else
                 dupValuefiles[minIndex]=stm;

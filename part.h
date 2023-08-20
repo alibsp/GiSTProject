@@ -9,6 +9,7 @@
 #define DATA_LEN 164    //4+16*10   //Mr. Aladaghi
 #define KEY_LEN 101     //Mr. Aladaghi
 #define BUCKET_SIZE 10 //Mr.mahmoudi??    //Used in findkey() if(count == 10) section
+#define OPEN_FILE_LIMIT 500 //Mr. Aladaghi
 //--------------------|END MACROS|--------------------
 
 #include <fcntl.h>      //for open(2)   //Shahab
@@ -25,9 +26,9 @@ struct UUID
 {
     UUID(const unsigned char * _val)
     {
-        memcpy(val, _val, 16);
+        memcpy(val, _val, ID_LEN);
     }
-    unsigned char val[16];
+    unsigned char val[ID_LEN];
 };
 
 //Mahmoud
@@ -40,7 +41,7 @@ struct FileStateManager
         accessCount=0;
     }
     FILE* fp;
-    char path[255];
+    char fileName[KEY_LEN];
     long accessTime;
     unsigned int accessCount;
 };
