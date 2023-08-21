@@ -52,8 +52,6 @@ void Part::importCSV(QString filePath)
             QString id=QString(columns[0]);
             QString keys=QString(columns[2]).replace("\"","");
             cout<<"Record "<<i<<endl;
-            if(i==520)
-                i=520;
             insertRecord(columns[0].data(), keys.toUtf8().data());
         }
         i++;
@@ -196,41 +194,43 @@ QList<UUID> Part::findKey(const char * key_value)   //Mr. mahmoudi??
                 UUID uuid(bin_id);
                 results.append(uuid);
             }
-        }
-    }
-    if(count==11)//go to postingFile
-    {
-        //---------------------------------------------|shahab|----------------------------------------------------
-        char postingFilePath[255];
-        int postingFileFd;
-        struct stat postingFileStatBuffer;
-        int readBytes = 0;
-        unsigned char postingFileReadBuffer[PAGING_COUNT*RECORD_SIZE];
-        unsigned char postingFileChunkBuffer[RECORD_SIZE];
-        char postingFileIsEof = 0;
-        char* binToHexBuffer[37];
-        char fileName[100];
-        hashFileName(value, fileName);
-        snprintf(postingFilePath, 255, "data/%s/%s.dat", key, fileName);   //Shahab
-        if( (postingFileFd = openFileV2(postingFilePath, O_RDONLY | O_NOATIME)) > -1 )
-        {
-            fstat(postingFileFd, &postingFileStatBuffer);
-            //fprintf(stderr, "file size: %ld\n", postingFileStatBuffer.st_size/16);
-            while(!postingFileIsEof)
+            if(count==11)//go to postingFile
             {
-                //fprintf(stderr, "page numebr: %d\n", currentPage);
-                readBytes =  readPostingFile(postingFileFd, postingFileStatBuffer.st_size/16, postingFileReadBuffer, &postingFileIsEof);
-                for(int i =0; i<PAGING_COUNT; i++)
+                //---------------------------------------------|shahab|----------------------------------------------------
+                char postingFilePath[255];
+                int postingFileFd;
+                struct stat postingFileStatBuffer;
+                int readBytes = 0;
+                unsigned char postingFileReadBuffer[PAGING_COUNT*RECORD_SIZE];
+                unsigned char postingFileChunkBuffer[RECORD_SIZE];
+                char postingFileIsEof = 0;
+                //char* binToHexBuffer[37];
+                char fileName[100];
+                hashFileName(keyFound, fileName);
+                snprintf(postingFilePath, 255, "data/%s/%s.dat", key, fileName);   //Shahab
+                if( (postingFileFd = openFileV2(postingFilePath, O_RDONLY | O_NOATIME)) > -1 )
                 {
-                    memcpy(postingFileChunkBuffer, postingFileReadBuffer+(i*RECORD_SIZE), 16);
-                    //binToHexStr(postingFileChunkBuffer, &binToHexBuffer);
-                    //printf("[%d]: %s\n", i, binToHexBuffer);
-                    UUID Hexuuid(postingFileChunkBuffer);
-                    results.append(Hexuuid);
+                    fstat(postingFileFd, &postingFileStatBuffer);
+                    //fprintf(stderr, "file size: %ld\n", postingFileStatBuffer.st_size/16);
+                    while(!postingFileIsEof)
+                    {
+                        //fprintf(stderr, "page numebr: %d\n", currentPage);
+                        readBytes =  readPostingFile(postingFileFd, postingFileStatBuffer.st_size/16, postingFileReadBuffer, &postingFileIsEof);
+                        if(readBytes<0)
+                            break;
+                        for(int i =0; i<PAGING_COUNT; i++)
+                        {
+                            memcpy(postingFileChunkBuffer, postingFileReadBuffer+(i*RECORD_SIZE), 16);
+                            //binToHexStr(postingFileChunkBuffer, &binToHexBuffer);
+                            //printf("[%d]: %s\n", i, binToHexBuffer);
+                            UUID Hexuuid(postingFileChunkBuffer);
+                            results.append(Hexuuid);
+                        }
+                    }
                 }
+                closePostingFd(postingFileFd);
             }
         }
-        closePostingFd(postingFileFd);
     }
     //cout<<"Execute Time: "<<timer.nsecsElapsed()<<" ns, record count:"<<results.count()<<endl;
     return results;

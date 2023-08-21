@@ -74,12 +74,20 @@ static int double_cmp(const void* a, const void* b)
 
 static int str_cmp(const void* a, const void* b)
 {
-    return (strcmp((const char*)a, (const char*)b));
-    for(int i=0;i<3;i++)
-        if(((const char*)a)[i]!=((const char*)b)[i])
-        {
-            return (strcmp((const char*)a, (const char*)b));
-        }
+    const char *query = (const char*)a;
+    const char *token = (const char*)b;
+    //return (strcmp((const char*)a, (const char*)b));
+    for(int i=0; query[i] && token[i] ;i++)
+    {
+        if(query[i]==':' && query[i+1]=='*')
+            return 0;
+        if(token[i]==':' && token[i+1]=='*')
+            return 0;
+        if(query[i]>token[i])
+            return 1;
+        if(query[i]<token[i])
+            return -1;
+    }
     return 0;
 }
 
@@ -994,23 +1002,23 @@ bt_ext_t bt_str_ext(gist_ext_t::bt_str_ext_id, "bt_str_ext",
 
 
 bt_ext_t bt_str_key_ext(gist_ext_t::bt_str_ext_id, "bt_str_key_ext",
-                    printStringBtPred, printInt,
-                    parseString, parseInt,
-                    parseStringQuery, str_cmp, str_cmp,
-                    str_size, int_size, str_negInfty, int_negInfty);
+                        printStringBtPred, printInt,
+                        parseString, parseInt,
+                        parseStringQuery, str_cmp, str_cmp,
+                        str_size, int_size, str_negInfty, int_negInfty);
 
 
 bt_ext_t bt_str_key_binary_data_ext(gist_ext_t::bt_str_key_binary_data_ext_id, "bt_str_key_binary_data_ext",
-                    printStringBtPred, printInt,
-                    parseString, parseInt,
-                    parseStringQuery, str_cmp, binary_cmp,
-                    str_size, int_size, str_negInfty, int_negInfty);
+                                    printStringBtPred, printInt,
+                                    parseString, parseInt,
+                                    parseStringQuery, str_cmp, binary_cmp,
+                                    str_size, int_size, str_negInfty, int_negInfty);
 
 bt_ext_t bt_binary_key_ext(gist_ext_t::bt_binary_key_ext_id, "bt_binary_key_ext",
-                    printStringBtPred, printInt,
-                    parseString, parseInt,
-                    parseStringQuery, uuid_cmp, str_cmp,
-                    str_size, int_size, str_negInfty, int_negInfty);
+                           printStringBtPred, printInt,
+                           parseString, parseInt,
+                           parseStringQuery, uuid_cmp, str_cmp,
+                           str_size, int_size, str_negInfty, int_negInfty);
 
 
 

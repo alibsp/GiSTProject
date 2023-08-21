@@ -187,7 +187,7 @@ int main(int argc, char *argv[])
     csvFile = "D:\\Programming\\Projects\\Part\\Data\\data.csv";
 #endif
 
-    bool clean=true;
+    bool clean=false;
     Part part;
     if(clean)
     {
@@ -200,7 +200,7 @@ int main(int argc, char *argv[])
     QElapsedTimer timer;
     timer.start();
 
-    QList<UUID> results=part.findKey("source_gitlab");
+    QList<UUID> results=part.findKey("userId_1:*");
     //results.append(part.findKey("updatedAt_14010510200905000"));
     //results.append(part.findKey("createdAt_14010511150209000"));
 
@@ -216,5 +216,5 @@ int main(int argc, char *argv[])
         qDebug() << "findKey result: -->\t" << output;
     }*/
     //qDebug()<<"Execute Time: "<<time1<<time<<" ns, record count:"<<ids.count();
-    qDebug()<<"finish.";
+    qDebug()<<"finish."<<results.count();
 }
