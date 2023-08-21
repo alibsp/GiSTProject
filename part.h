@@ -22,14 +22,34 @@
 #include "BTree/gist_btree.h"
 #include "GiST/gist_cursor.h"
 
+//using qhash_result_t = size_t;
+//struct UUID;
+//qhash_result_t qHash(const UUID &c, qhash_result_t seed = 0) noexcept;
 struct UUID
 {
+//public:
     UUID(const unsigned char * _val)
     {
         memcpy(val, _val, ID_LEN);
     }
+    UUID(const UUID &other)
+    {
+        memcpy(val, other.val, ID_LEN);
+    }
     unsigned char val[ID_LEN];
+    //friend  qhash_result_t qHash(const UUID &c, qhash_result_t seed) noexcept;
 };
+/*qhash_result_t qHash(const UUID &c, qhash_result_t seed) noexcept
+{
+    QtPrivate::QHashCombine hash;
+    seed = hash(seed, c.val);
+    return seed;
+}
+inline bool operator == (const UUID& a, const UUID& b)
+{
+    return false;
+    //return strncmp(a.val, b.val, ID_LEN);
+}*/
 
 //Mahmoud
 struct FileStateManager
@@ -69,7 +89,7 @@ public:
     void binToHexStr(const unsigned char* bins, char* out); //shahab
     char compareBins(unsigned char* first, unsigned char* second);  //Shahab
     int openFileV2(const char* pathname, int flags);   //shahab
-    int readPostingFile(int fd, int countOfDataInside, unsigned char* readBuffer, char* isEof);    //shahab
+    int readPostingFile(int fd, int countOfDataInside, unsigned char* readBuffer, char* isEof, int &currentPage);    //shahab
     int closePostingFd(int fd);  //Shahab
     //-----------------------------------------------------------------------------|END Shahab|------------------------------------------------------------------------------------------
 

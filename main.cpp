@@ -187,7 +187,7 @@ int main(int argc, char *argv[])
     csvFile = "D:\\Programming\\Projects\\Part\\Data\\data.csv";
 #endif
 
-    bool clean=false;
+    bool clean=true;
     Part part;
     if(clean)
     {
@@ -200,21 +200,21 @@ int main(int argc, char *argv[])
     QElapsedTimer timer;
     timer.start();
 
-    QList<UUID> results=part.findKey("userId_1:*");
+    uint64_t time1=timer.nsecsElapsed();
+    QList<UUID> results=part.findKey("yearMonthDay_140105:*");
     //results.append(part.findKey("updatedAt_14010510200905000"));
     //results.append(part.findKey("createdAt_14010511150209000"));
 
-    /*uint64_t time1=timer.nsecsElapsed();
-    QSet<QString> ids(results.begin(), results.end());
+
+    //QSet<UUID> ids(results.begin(), results.end());
     uint64_t time=timer.nsecsElapsed();
-    for (QString res:ids)   //shahab
+    for (UUID &res:results)   //shahab
     {
-        /*char* output = (char*)malloc( 37*sizeof(char) );
-        unsigned char* bins = (unsigned char*)malloc( 37*sizeof(unsigned char) );
-        memcpy( bins, res.toStdString().c_str(), 16);
-        part.binToHexStr(bins, &output);
-        qDebug() << "findKey result: -->\t" << output;
-    }*/
-    //qDebug()<<"Execute Time: "<<time1<<time<<" ns, record count:"<<ids.count();
+
+        char output[37];
+        part.binToHexStr(res.val, output);
+        qDebug() << "ID: -->\t" << output;
+    }
+    qDebug()<<"Execute Time: "<<time1<<time<<" ns, record count:"<<results.count();
     qDebug()<<"finish."<<results.count();
 }

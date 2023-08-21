@@ -185,6 +185,8 @@ QList<UUID> Part::findKey(const char * key_value)   //Mr. mahmoudi??
         }
         if (!eof)
         {
+            cout << "keyFound:" << key<<":"<<keyFound<<endl;
+
             memcpy(&count, data, 4);
             for(size_t i=0;i<count && i< 10;i++)
             {
@@ -198,24 +200,41 @@ QList<UUID> Part::findKey(const char * key_value)   //Mr. mahmoudi??
             {
                 //---------------------------------------------|shahab|----------------------------------------------------
                 char postingFilePath[255];
+                unsigned char postingFileReadBuffer[PAGING_COUNT*RECORD_SIZE];
+                char fileName[100];
+                hashFileName(keyFound, fileName);
+                snprintf(postingFilePath, 255, "data/%s/%s.dat", key, fileName);   //Shahab
+                FILE *fp=getPostingFileHandleForRead(postingFilePath, fileName);
+                if(fp)
+                {
+                    do
+                    {
+                        count=fread(postingFileReadBuffer, 1, RECORD_SIZE*PAGING_COUNT, fp);
+                        for(uint i =0; i<count; i+=RECORD_SIZE)
+                        {
+                            UUID Hexuuid(postingFileReadBuffer+i);
+                            results.append(Hexuuid);
+                        }
+                    }while(count);
+                }
+
+                /*
                 int postingFileFd;
                 struct stat postingFileStatBuffer;
                 int readBytes = 0;
                 unsigned char postingFileReadBuffer[PAGING_COUNT*RECORD_SIZE];
                 unsigned char postingFileChunkBuffer[RECORD_SIZE];
                 char postingFileIsEof = 0;
-                //char* binToHexBuffer[37];
-                char fileName[100];
-                hashFileName(keyFound, fileName);
-                snprintf(postingFilePath, 255, "data/%s/%s.dat", key, fileName);   //Shahab
+
                 if( (postingFileFd = openFileV2(postingFilePath, O_RDONLY | O_NOATIME)) > -1 )
                 {
                     fstat(postingFileFd, &postingFileStatBuffer);
+                    int currentPage=1;
                     //fprintf(stderr, "file size: %ld\n", postingFileStatBuffer.st_size/16);
                     while(!postingFileIsEof)
                     {
                         //fprintf(stderr, "page numebr: %d\n", currentPage);
-                        readBytes =  readPostingFile(postingFileFd, postingFileStatBuffer.st_size/16, postingFileReadBuffer, &postingFileIsEof);
+                        readBytes =  readPostingFile(postingFileFd, postingFileStatBuffer.st_size/16, postingFileReadBuffer, &postingFileIsEof, currentPage);
                         if(readBytes<0)
                             break;
                         for(int i =0; i<PAGING_COUNT; i++)
@@ -228,7 +247,7 @@ QList<UUID> Part::findKey(const char * key_value)   //Mr. mahmoudi??
                         }
                     }
                 }
-                closePostingFd(postingFileFd);
+                closePostingFd(postingFileFd);*/
             }
         }
     }
@@ -379,8 +398,7 @@ void Part::insertTerm(const char *id, const char *term)
     //if -> bloom check (term)  -->0 --1>
     //TODO: Consider adding bloom filter
     unsigned int count=0;
-    //  if(strcmp(term, "source_gitlab")==0)
-    // count=1;
+
 
 
     isKeyExist(treeName, treeKey, (void *)data);
@@ -401,6 +419,8 @@ void Part::insertTerm(const char *id, const char *term)
     }
     else //count>10; postingTree
     {
+        if(strcmp(term, "yearMonthDay_14010511")==0)
+            count=11;
         //Directory name: treeName
         //File name     : treeKey
         //key in tree   : binaryUUID
@@ -408,12 +428,8 @@ void Part::insertTerm(const char *id, const char *term)
         //mahmoud
         //1.Check if directory not exists, then create directory
         struct stat st;
-        bool isMkdirNow=false;
         if (stat(path_data_folder, &st) == -1)
-        {
-            isMkdirNow = true;
             mkdir(path_data_folder, 0700);
-        }
 
         char fileName[100];
         hashFileName(treeKey, fileName);
@@ -429,9 +445,9 @@ void Part::insertTerm(const char *id, const char *term)
         strcat(path_data_folder, fileName);
         strcat(path_data_folder, ".dat");
 
+        //bool isPostingFileNew=false;
         FILE *file = getPostingFileHandleForWrite(path_data_folder, fileName);
-        fwrite(binaryUUID, ID_LEN, 1, file);
-        if(isMkdirNow)
+        if(ftell(file)==0)
         {
             memcpy(data, &count, 4);
             if(count>1)
@@ -442,6 +458,7 @@ void Part::insertTerm(const char *id, const char *term)
             myGist->insert((void *) &treeKey, KEY_LEN, (void *) data, DATA_LEN);
             myGist->flush();
         }
+        fwrite(binaryUUID, ID_LEN, 1, file);
         //fclose(file);
     }
     //TODO: add code to create new posting-tree if key exsists!
@@ -779,9 +796,8 @@ int Part::openFileV2(const char* pathname, int flags)   //shahab
 
 //#define PAGING_COUNT 10   //Moved to header
 //#define RECORD_SIZE 16    //Moved to header
-static int currentPage = 1; //Static has scope of file and not exposed to linker; Shouldn't be moved to header!
 
-int Part::readPostingFile(int fd, int countOfDataInside, unsigned char* readBuffer, char* isEof)    //shahab
+int Part::readPostingFile(int fd, int countOfDataInside, unsigned char* readBuffer, char* isEof, int &currentPage)    //shahab
 {
     //--------->NOTE: Never use SEEK_CUR if you've used read()! Reading forwards file offset!!!!
     //static int currentPage = 1;
@@ -821,7 +837,7 @@ int Part::readPostingFile(int fd, int countOfDataInside, unsigned char* readBuff
 
 int Part::closePostingFd(int fd)  //Shahab
 {
-    currentPage = 0;
+    //currentPage = 0;
     return close(fd);
 }
 
