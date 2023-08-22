@@ -192,7 +192,7 @@ int main(int argc, char *argv[])
     //char bb[100]="  b";
     //cout<<str_cmp((void*)aa, (void*)bb)<<" "<< strcmp(aa, bb)<<endl;
     //return 0;
-    bool clean=true;
+    bool clean=false;
     Part part;
     if(clean)
     {
@@ -210,7 +210,9 @@ int main(int argc, char *argv[])
     QElapsedTimer timer;
     timer.start();
 
-    QList<UUID> results=part.findKey("userId_103:*");
+    QList<UUID> results=part.findKey("updatedAt_14010510:*");
+    results.append(part.findKey("action_:*"));
+    results.append(part.findKey("state_op:*"));
     uint64_t time1=timer.nsecsElapsed();
     //results.append(part.findKey("updatedAt_14010510200905000"));
     //results.append(part.findKey("createdAt_14010511150209000"));
@@ -218,13 +220,14 @@ int main(int argc, char *argv[])
 
     //QSet<UUID> ids(results.begin(), results.end());
     //uint64_t time=timer.nsecsElapsed();
-    for (UUID &res:results)   //shahab
+    qDebug()<<"Find Time: "<<time1<<" ns, record count:"<<results.count();
+    /*for (UUID &res:results)   //shahab
     {
 
         char output[37];
         part.binToHexStr(res.val, output);
         qDebug() << "ID: -->\t" << output;
-    }
+    }*/
     qDebug()<<"Find Time: "<<time1<<" ns, record count:"<<results.count();
     qDebug()<<"finish.";
 }

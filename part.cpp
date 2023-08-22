@@ -187,7 +187,7 @@ QList<UUID> Part::findKey(const char * key_value)   //Mr. mahmoudi??
         }
         if (!eof)
         {
-            //cout << "keyFound:" << key<<":"<<keyFound<<endl;
+            cout << "keyFound:" << key<<":"<<keyFound<<endl;
 
             memcpy(&count, data, 4);
             for(size_t i=0;i<count && i< 10;i++)

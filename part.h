@@ -3,7 +3,7 @@
 
 //----------------------|MACROS|----------------------
 #define _GNU_SOURCE 1   //For NOATIME in open(2) //Must be very first line!
-#define PAGING_COUNT 256 //Shahab    //For readPostingFile()
+#define PAGING_COUNT 512 //Shahab    //For readPostingFile()
 #define RECORD_SIZE 16  //Shahab    //For readPostingFile
 #define ID_LEN 16       //Mr. Aladaghi
 #define DATA_LEN 164    //4+16*10   //Mr. Aladaghi

@@ -88,9 +88,17 @@ static int str_cmp(const void* a, const void* b)
             return query[i]-token[i];
     }
     if(query[i] && !token[i])
+    {
+        if(query[i]==':' && query[i+1]=='*')
+            return 0;
         return 1;
+    }
     if(!query[i] && token[i])
+    {
+        if(token[i]==':' && token[i+1]=='*')
+            return 0;
         return -1;
+    }
     return 0;
 }
 
