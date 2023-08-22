@@ -74,20 +74,23 @@ static int double_cmp(const void* a, const void* b)
 
 static int str_cmp(const void* a, const void* b)
 {
+    //return (strcmp((const char*)a, (const char*)b));
     const char *query = (const char*)a;
     const char *token = (const char*)b;
-    //return (strcmp((const char*)a, (const char*)b));
-    for(int i=0; query[i] && token[i] ;i++)
+    int i=0;
+    for(i=0; query[i] && token[i] ;i++)
     {
         if(query[i]==':' && query[i+1]=='*')
             return 0;
         if(token[i]==':' && token[i+1]=='*')
             return 0;
-        if(query[i]>token[i])
-            return 1;
-        if(query[i]<token[i])
-            return -1;
+        if(query[i]!=token[i])
+            return query[i]-token[i];
     }
+    if(query[i] && !token[i])
+        return 1;
+    if(!query[i] && token[i])
+        return -1;
     return 0;
 }
 
@@ -616,8 +619,13 @@ int bt_ext_t::_binSearch(const gist_p& page, const void* key, const void* data, 
         if (!keyOnly && res == 0)
             res = dataCmp(data, middata);
         if (res < 0)
+        {
             // key is smaller than midpoint
+            if(hi==0)
+                hi=0;
+                //return hi;
             hi = mid - 1;
+        }
         else if (res > 0)
             lo = mid + 1;
         else

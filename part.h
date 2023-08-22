@@ -3,7 +3,7 @@
 
 //----------------------|MACROS|----------------------
 #define _GNU_SOURCE 1   //For NOATIME in open(2) //Must be very first line!
-#define PAGING_COUNT 10 //Shahab    //For readPostingFile()
+#define PAGING_COUNT 256 //Shahab    //For readPostingFile()
 #define RECORD_SIZE 16  //Shahab    //For readPostingFile
 #define ID_LEN 16       //Mr. Aladaghi
 #define DATA_LEN 164    //4+16*10   //Mr. Aladaghi
@@ -62,6 +62,7 @@ struct FileStateManager
         accessCount=0;
     }
     FILE* fp;
+    char keyName[KEY_LEN];
     char fileName[KEY_LEN];
     long accessTime;
     unsigned int accessCount;
@@ -105,9 +106,9 @@ private:
     void extractKeyValue(const char *term, char *key, char *value);
     QStringList findFiles(const QString &startDir, const QStringList &filters);
 
-    FILE *getPostingFileHandle(const char *path, const char *filename, unsigned char mode);
-    FILE *getPostingFileHandleForWrite(const char *path, const char *filename);
-    FILE *getPostingFileHandleForRead(const char *path, const char *filename);
+    FILE *getPostingFileHandle(const char *path, const char *keyname, const char *filename, unsigned char mode);
+    FILE *getPostingFileHandleForWrite(const char *path, const char *keyname, const char *filename);
+    FILE *getPostingFileHandleForRead(const char *path, const char *keyname, const char *filename);
 };
 
 #endif // PART_H

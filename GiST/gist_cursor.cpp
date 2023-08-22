@@ -208,24 +208,30 @@ gist_lstk::_push(
 
     // locate position on stack
     assert(!is_full());
-    if (_top < lstk_chunk) {
-	target = &_stk[_top];
-	_top++;
-    } else {
-	int2 pos = _top / lstk_chunk - 1;
-	int2 off = _top % lstk_chunk;
-	if (!_indirect[pos]) {
-	    _indirect[pos] = new gist_lstk_entry[lstk_chunk];
-	}
-	target = &_indirect[pos][off];
-	_top++;
+    if (_top < lstk_chunk)
+    {
+        target = &_stk[_top];
+        _top++;
+    } else
+    {
+        int2 pos = _top / lstk_chunk - 1;
+        int2 off = _top % lstk_chunk;
+        if (!_indirect[pos])
+        {
+            _indirect[pos] = new gist_lstk_entry[lstk_chunk];
+        }
+        target = &_indirect[pos][off];
+        _top++;
     }
-
-    if (typ == gist_lstk_entry::eNode) {
-	// new gist_lstk_entry will be stored at target
-	target = new (target) gist_lstk_entry(pid, parent);
-    } else {
-	target = new (target) gist_lstk_entry(key, klen, data, dlen, pid, idx);
+    //if(target)
+    //    delete target;
+    if (typ == gist_lstk_entry::eNode)
+    {
+        // new gist_lstk_entry will be stored at target
+        target = new (target) gist_lstk_entry(pid, parent);
+    } else
+    {
+        target = new (target) gist_lstk_entry(key, klen, data, dlen, pid, idx);
     }
 
     return (target);

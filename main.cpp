@@ -172,6 +172,7 @@ int stringTest()
     return 0;
 }
 
+
 int main(int argc, char *argv[])
 {
     //intTest();
@@ -187,12 +188,21 @@ int main(int argc, char *argv[])
     csvFile = "D:\\Programming\\Projects\\Part\\Data\\data.csv";
 #endif
 
+    //char aa[100]="   a";
+    //char bb[100]="  b";
+    //cout<<str_cmp((void*)aa, (void*)bb)<<" "<< strcmp(aa, bb)<<endl;
+    //return 0;
     bool clean=true;
     Part part;
     if(clean)
     {
+        QElapsedTimer timer;
+        timer.start();
         part.dropGists();
+        qDebug()<<"Drop Gists Time: "<<timer.nsecsElapsed()<<" ns";;
+        timer.start();
         part.importCSV(csvFile);
+        qDebug()<<"All Insert Time: "<<timer.elapsed()<<" ms";;
     }
     else
         part.loadGists();
@@ -200,14 +210,14 @@ int main(int argc, char *argv[])
     QElapsedTimer timer;
     timer.start();
 
+    QList<UUID> results=part.findKey("userId_103:*");
     uint64_t time1=timer.nsecsElapsed();
-    QList<UUID> results=part.findKey("yearMonthDay_140105:*");
     //results.append(part.findKey("updatedAt_14010510200905000"));
     //results.append(part.findKey("createdAt_14010511150209000"));
 
 
     //QSet<UUID> ids(results.begin(), results.end());
-    uint64_t time=timer.nsecsElapsed();
+    //uint64_t time=timer.nsecsElapsed();
     for (UUID &res:results)   //shahab
     {
 
@@ -215,6 +225,6 @@ int main(int argc, char *argv[])
         part.binToHexStr(res.val, output);
         qDebug() << "ID: -->\t" << output;
     }
-    qDebug()<<"Execute Time: "<<time1<<time<<" ns, record count:"<<results.count();
-    qDebug()<<"finish."<<results.count();
+    qDebug()<<"Find Time: "<<time1<<" ns, record count:"<<results.count();
+    qDebug()<<"finish.";
 }

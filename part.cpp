@@ -46,12 +46,14 @@ void Part::importCSV(QString filePath)
     while (!file.atEnd())
     {
         QByteArray line = file.readLine();
-        if(i)
+        if(i && line!="\n" )
         {
             QList<QByteArray> columns = line.split(';');
             QString id=QString(columns[0]);
             QString keys=QString(columns[2]).replace("\"","");
             cout<<"Record "<<i<<endl;
+            if(i==20674)
+                i=20674;
             insertRecord(columns[0].data(), keys.toUtf8().data());
         }
         i++;
@@ -63,7 +65,7 @@ void Part::loadGists()
 {
 
 #ifdef __linux__
-    QDir dir("data/", "*.db");
+    QDir dir("/usr/local/part/data/", "*.db");
 #elif _WIN32
     QDir dir("data\\", "*.db");
 #endif
@@ -105,7 +107,7 @@ void Part::dropGists()
 {
 
 #ifdef __linux__
-    QString path="data";
+    QString path="/usr/local/part/data";
 #elif _WIN32
     QString path = "data";
 #endif
@@ -130,7 +132,7 @@ void Part::insertRecord(const char *id, const char *keys)
     QElapsedTimer elapsedTimer;
     elapsedTimer.start();
     char myId[37]={0};
-    strcpy(myId, id);
+    strncpy(myId, id, 36);
     if(insertId(myId))
     {
         int i=0;
@@ -185,7 +187,7 @@ QList<UUID> Part::findKey(const char * key_value)   //Mr. mahmoudi??
         }
         if (!eof)
         {
-            cout << "keyFound:" << key<<":"<<keyFound<<endl;
+            //cout << "keyFound:" << key<<":"<<keyFound<<endl;
 
             memcpy(&count, data, 4);
             for(size_t i=0;i<count && i< 10;i++)
@@ -203,13 +205,13 @@ QList<UUID> Part::findKey(const char * key_value)   //Mr. mahmoudi??
                 unsigned char postingFileReadBuffer[PAGING_COUNT*RECORD_SIZE];
                 char fileName[100];
                 hashFileName(keyFound, fileName);
-                snprintf(postingFilePath, 255, "data/%s/%s.dat", key, fileName);   //Shahab
-                FILE *fp=getPostingFileHandleForRead(postingFilePath, fileName);
+                snprintf(postingFilePath, 255, "/usr/local/part/data/%s/%s.dat", key, fileName);   //Shahab
+                FILE *fp=getPostingFileHandleForRead(postingFilePath, key, fileName);
                 if(fp)
                 {
                     do
                     {
-                        count=fread(postingFileReadBuffer, 1, RECORD_SIZE*PAGING_COUNT, fp);
+                        count=fread(postingFileReadBuffer, RECORD_SIZE, PAGING_COUNT, fp)*RECORD_SIZE;
                         for(uint i =0; i<count; i+=RECORD_SIZE)
                         {
                             UUID Hexuuid(postingFileReadBuffer+i);
@@ -277,7 +279,7 @@ void Part::extractKeyValue(const char *term, char *key, char *value)
             break;
     }
 }
-FILE *Part::getPostingFileHandle(const char *path, const char *filename, unsigned char mode)
+FILE *Part::getPostingFileHandle(const char *path, const char *keyname, const char *filename, unsigned char mode)
 {
     QList<FileStateManager> &postingFiles=postingFilesForWrite;
     if(mode==0)//for read else for write
@@ -293,7 +295,7 @@ FILE *Part::getPostingFileHandle(const char *path, const char *filename, unsigne
     {
         if(currentNano.tv_nsec - dupFileInfo.accessTime > 1000000 && dupFileInfo.accessCount)
             dupFileInfo.accessCount--;
-        if(!file && strncmp(dupFileInfo.fileName, filename, KEY_LEN)==0)
+        if(!file && strncmp(dupFileInfo.keyName, keyname, KEY_LEN)==0 && strncmp(dupFileInfo.fileName, filename, KEY_LEN)==0)
         {
             file = dupFileInfo.fp;
             dupFileInfo.accessCount+=100;
@@ -319,6 +321,7 @@ FILE *Part::getPostingFileHandle(const char *path, const char *filename, unsigne
         // Mahmoud
         //******************************************************
         FileStateManager stm;
+        strncpy(stm.keyName, keyname, KEY_LEN);
         strncpy(stm.fileName, filename, KEY_LEN);
         stm.accessCount=100;
         stm.fp = file;
@@ -334,14 +337,14 @@ FILE *Part::getPostingFileHandle(const char *path, const char *filename, unsigne
 }
 
 
-FILE * Part::getPostingFileHandleForWrite(const char *path, const char *filename)
+FILE * Part::getPostingFileHandleForWrite(const char *path, const char *keyname, const char *filename)
 {
-    return getPostingFileHandle(path, filename, 1);
+    return getPostingFileHandle(path, keyname, filename, 1);
 }
 
-FILE *Part::getPostingFileHandleForRead(const char *path, const char *filename)
+FILE *Part::getPostingFileHandleForRead(const char *path, const char *keyname, const char *filename)
 {
-    return getPostingFileHandle(path, filename, 0);
+    return getPostingFileHandle(path, keyname, filename, 0);
 }
 
 
@@ -368,8 +371,8 @@ void Part::insertTerm(const char *id, const char *term)
         strncpy(treeName, "nonekey", KEY_LEN);
     }
 #ifdef __linux__
-    char path[200]="data/";
-    char path_data_folder[200]="data/";
+    char path[200]="/usr/local/part/data/";
+    char path_data_folder[200]="/usr/local/part/data/";
 #elif _WIN32
     char path[200]="data\\";
 #endif
@@ -419,8 +422,6 @@ void Part::insertTerm(const char *id, const char *term)
     }
     else //count>10; postingTree
     {
-        if(strcmp(term, "yearMonthDay_14010511")==0)
-            count=11;
         //Directory name: treeName
         //File name     : treeKey
         //key in tree   : binaryUUID
@@ -445,8 +446,7 @@ void Part::insertTerm(const char *id, const char *term)
         strcat(path_data_folder, fileName);
         strcat(path_data_folder, ".dat");
 
-        //bool isPostingFileNew=false;
-        FILE *file = getPostingFileHandleForWrite(path_data_folder, fileName);
+        FILE *file = getPostingFileHandleForWrite(path_data_folder, treeName, fileName);
         if(ftell(file)==0)
         {
             memcpy(data, &count, 4);
@@ -482,7 +482,7 @@ bool Part::insertId(const char *id)
     hexStrToBin(id, binaryUUID);
 
 #ifdef __linux__
-    char path[]="data/QGiSTId.db";
+    char path[]="/usr/local/part/data/QGiSTId.db";
 #elif _WIN32
     char path[]="data\\id.db";
 #endif
@@ -711,17 +711,18 @@ bool Part::isKeyExist(const char *key, const char *value, void *data)
     bool eof = false;
     smsize_t keysz=KEY_LEN, datasz=DATA_LEN;
     char keyFound[KEY_LEN]={0};
+    bool find=false;
     while (!eof)
     {
         if(myGist->fetch(cursor, (void *)&keyFound, keysz, data, datasz, eof)!=RCOK)
         {
             cerr << "Can't fetch from cursor." << endl;
-            return false;
+            find=false;
         }
         if (!eof)
-            return true;
+            find=true;
     }
-    return false;
+    return find;
 }
 
 

@@ -5,6 +5,9 @@
 #include "gist_defs.h"
 
 #include "gist_p.h"
+#include "qdebug.h"
+#include "qprocess.h"
+
 
 const int gist_p::_HDR_CORRECTION = 1;
 
@@ -307,11 +310,42 @@ gist_p::operator=(const gist_p& p)
     return *this;
 }
 
+int parseLine(char* line)
+{
+    // This assumes that a digit will be found and the line ends in " Kb".
+    int i = strlen(line);
+    const char* p = line;
+    while (*p <'0' || *p > '9') p++;
+    line[i-3] = '\0';
+    i = atoi(p);
+    return i;
+}
+
+int getValue()
+{ //Note: this value is in KB!
+    FILE* file = fopen("/proc/self/status", "r");
+    int result = -1;
+    char line[128];
+
+    while (fgets(line, 128, file) != NULL)
+    {
+        if (strncmp(line, "VmRSS:", 6) == 0){
+            result = parseLine(line);
+            break;
+        }
+    }
+    fclose(file);
+    return result;
+}
+
 rc_t gist_p::_insert_expand(
     int idx,
     int cnt,
     const cvec_t vec[])
 {
+    //long long totalVirtualMem = getValue();
+    //qDebug()<<"1:"<<totalVirtualMem;
+
     assert(idx >= 0 && idx <= _pp->nslots);
     assert(cnt > 0);
 
@@ -319,8 +353,12 @@ rc_t gist_p::_insert_expand(
     uint4 total = 0;
     int i;
     for (i = 0; i < cnt; i++) {
-        total += int(align(vec[i].size()) + sizeof(slot_t));
+        total += int(gist_align(vec[i].size()) + sizeof(slot_t));
     }
+    //char * test = (char*)malloc(10000000);
+    //test[0]=0;
+    //totalVirtualMem = getValue();
+    //qDebug()<<"2:"<<totalVirtualMem<<test;
 
     //  Try to get the space ... could fail with eRECWONTFIT
     W_DO(_pp->space.acquire(total, 0));
@@ -330,6 +368,9 @@ rc_t gist_p::_insert_expand(
         assert(_contig_space() >= total);
     }
 
+    //totalVirtualMem = getValue();
+    //qDebug()<<"3:"<<totalVirtualMem;
+
     if (idx != _pp->nslots) {
         //  Shift left neighbor slots further to the left
         memcpy(&_pp->slot[-(_pp->nslots + cnt - 1)],
@@ -337,16 +378,21 @@ rc_t gist_p::_insert_expand(
             (_pp->nslots - idx) * sizeof(slot_t));
     }
 
+    //totalVirtualMem = getValue();
+    //qDebug()<<"4:"<<totalVirtualMem;
+
     //  Fill up the slots and data
     slot_t* p = &_pp->slot[-idx];
     for (i = 0; i < cnt; i++, p--) {
         p->offset = _pp->end;
         p->length = vec[i].copy_to(_pp->data + p->offset);
-        _pp->end += int(align(p->length));
+        _pp->end += int(gist_align(p->length));
     }
 
-    _pp->nslots += cnt;
+    //totalVirtualMem = getValue();
+    //qDebug()<<"5:"<<totalVirtualMem;
 
+    _pp->nslots += cnt;
     return RCOK;
 }
 
@@ -361,7 +407,7 @@ rc_t gist_p::_remove_compress(int idx, int cnt)
     int amt_freed = 0;
     for (; p != q; p--) {
         assert(p->length < gist_p::max_tup_sz);
-        amt_freed += int(align(p->length) + sizeof(slot_t));
+        amt_freed += int(gist_align(p->length) + sizeof(slot_t));
     }
 
     //	Compress slot array
@@ -423,7 +469,7 @@ void gist_p::_compress(int idx)
             assert(s.offset >= 0);
             memcpy(p, scratch + s.offset, s.length);
             s.offset = p - _pp->data;
-            p += align(s.length);
+            p += gist_align(s.length);
         }
     }
 
@@ -434,7 +480,7 @@ void gist_p::_compress(int idx)
             assert(s.offset >= 0);
             memcpy(p, scratch + s.offset, s.length);
             s.offset = p - _pp->data;
-            p += align(s.length);
+            p += gist_align(s.length);
         }
     }
 

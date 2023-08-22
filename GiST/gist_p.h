@@ -216,7 +216,7 @@ gist_p::root() const
 inline int
 gist_p::rec_size(size_t klen, size_t dlen)
 {
-    return int(align(klen + dlen + sizeof(keyrec_t::hdr_s)) + sizeof(slot_t));
+    return int(gist_align(klen + dlen + sizeof(keyrec_t::hdr_s)) + sizeof(slot_t));
 }
 
 #endif /*GIST_P_H*/
