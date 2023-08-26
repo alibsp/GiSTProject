@@ -5,8 +5,8 @@
 #ifndef GIST_BTREE_H
 #define GIST_BTREE_H
 
-#include "../GiST/gist_p.h" // for keyrec_t
-#include "../GiST/gist_query.h" // for gist_query_t
+#include "../../core_GiST/gist_p.h" // for keyrec_t
+#include "../../core_GiST/gist_query.h" // for gist_query_t
 #ifdef AMDB
 #include "amdb_ext.h"
 #endif
