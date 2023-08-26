@@ -213,14 +213,14 @@ int main(int argc, char *argv[])
     QList<UUID> results=part.findKey("updatedAt_14010510:*");
     results.append(part.findKey("action_:*"));
     results.append(part.findKey("state_op:*"));
-    uint64_t time1=timer.nsecsElapsed();
+    uint64_t queryExecTime=timer.nsecsElapsed();
     //results.append(part.findKey("updatedAt_14010510200905000"));
     //results.append(part.findKey("createdAt_14010511150209000"));
 
 
     //QSet<UUID> ids(results.begin(), results.end());
     //uint64_t time=timer.nsecsElapsed();
-    qDebug()<<"Find Time: "<<time1<<" ns, record count:"<<results.count();
+    //qDebug()<<"Find Time: "<<queryExecTime<<" ns, record count:"<<results.count();
     /*for (UUID &res:results)   //shahab
     {
 
@@ -228,6 +228,6 @@ int main(int argc, char *argv[])
         part.binToHexStr(res.val, output);
         qDebug() << "ID: -->\t" << output;
     }*/
-    qDebug()<<"Find Time: "<<time1<<" ns, record count:"<<results.count();
+    qDebug()<<"Query Exec Time: "<<queryExecTime/1000000.0<<" ms, record count:"<<results.count();
     qDebug()<<"finish.";
 }
