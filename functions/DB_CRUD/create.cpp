@@ -1,4 +1,5 @@
 #include "../../headers/include_handler.hpp"
+#include "../../headers/part_class.hpp"
 
 void Part::insertRecord(const char *id, const char *keys)
 {
@@ -31,7 +32,7 @@ void Part::insertRecord(const char *id, const char *keys)
 void Part::insertTerm(const char *id, const char *term)
 {
     unsigned char binaryUUID[ID_LEN];  //shahab: I think we don't need to worry about allocating explict memory range for this, as it'll be assigned to another memory location later;
-    hexStrToBin(id, binaryUUID);
+    GeneralUtils::hexStrToBin(id, binaryUUID);
 
     unsigned char data[DATA_LEN]={0};
 
@@ -39,7 +40,7 @@ void Part::insertTerm(const char *id, const char *term)
 
     char treeName[KEY_LEN]={0};
     char treeKey[KEY_LEN]={0};
-    extractKeyValue(term, treeName, treeKey);
+    GeneralUtils::extractKeyValue(term, treeName, treeKey);
 
     //strcat(value, ":"); //shahab:duplicate error fix
     //strcat(value, id);  //shahab:duplicate error fix
@@ -49,12 +50,11 @@ void Part::insertTerm(const char *id, const char *term)
         strncpy(treeKey , treeName, KEY_LEN);
         strncpy(treeName, "nonekey", KEY_LEN);
     }
-#ifdef __linux__
-    char path[200]="data/";
-    char path_data_folder[200]="data/";
-#elif _WIN32
-    char path[200]="data\\";
-#endif
+    char path[257];
+    char path_data_folder[257];
+
+    strncpy(path, m_dataPath.toUtf8().data(), 256);
+    strncpy(path_data_folder, m_dataPath.toUtf8().data(), 256);
 
     strcat(path, treeName);
     strcat(path_data_folder, treeName);
@@ -112,7 +112,7 @@ void Part::insertTerm(const char *id, const char *term)
             mkdir(path_data_folder, 0700);
 
         char fileName[100];
-        hashFileName(treeKey, fileName);
+        GeneralUtils::hashFileName(treeKey, fileName);
 
         //Remove illigal '/' char from string so linux systems can accept our file names.
         //Or we can replace it with specialChar
@@ -147,13 +147,12 @@ void Part::insertTerm(const char *id, const char *term)
 bool Part::insertId(const char *id)
 {
     unsigned char binaryUUID[ID_LEN];  //shahab: I think we don't need to worry about allocating explict memory range for this, as it'll be assigned to another memory location later;
-    hexStrToBin(id, binaryUUID);
+    GeneralUtils::hexStrToBin(id, binaryUUID);
 
-#ifdef __linux__
-    char path[]="data/QGiSTId.db";
-#elif _WIN32
-    char path[]="data\\id.db";
-#endif
+    char path[257];
+    strncpy(path, m_dataPath.toUtf8().data(), 256);
+    strncat(path, "QGiSTId.db", 256);
+
 
     gist *myGist  =gists["QGiSTId"];
     if(myGist==nullptr)

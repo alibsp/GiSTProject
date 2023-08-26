@@ -1,10 +1,10 @@
 #include <QCoreApplication>
 #include <QElapsedTimer>
 #include <QDebug>
-#include "GiST/gist.h"
-#include "BTree/gist_btree.h"
-#include "GiST/gist_cursor.h"
-#include "part.h"
+#include "core_GiST/gist.h"
+#include "extension_implementation/core_BTree/gist_btree.h"
+#include "core_GiST/gist_cursor.h"
+#include "headers/part_class.hpp"
 
 void myPrintPredFct(
     std::ostream& s, // what to print to
@@ -181,10 +181,10 @@ int main(int argc, char *argv[])
 
     QString csvFile;
 #ifdef __linux__
-    //csvFile = "/usr/local/part/data.csv";
+    csvFile = "/usr/local/part/data_10000.csv";
     //csvFile = "/media/ali/Data/Programming/Projects/Part/Data/data2.csv";
     //csvFile = "/home/mahmoudmahmoudinik/Data/data2.csv";
-    csvFile = "/home/shahabseddigh/Desktop/data2.csv";
+    //csvFile = "/home/shahabseddigh/Desktop/data2.csv";
 #elif _WIN32
     csvFile = "D:\\Programming\\Projects\\Part\\Data\\data.csv";
 #endif
@@ -193,8 +193,8 @@ int main(int argc, char *argv[])
     //char bb[100]="  b";
     //cout<<str_cmp((void*)aa, (void*)bb)<<" "<< strcmp(aa, bb)<<endl;
     //return 0;
-    bool clean=true;
-    Part part;
+    bool clean=false;
+    Part part("/usr/local/part/data/");
     if(clean)
     {
         QElapsedTimer timer;
@@ -212,8 +212,8 @@ int main(int argc, char *argv[])
     timer.start();
 
     QList<UUID> results=part.findKey("updatedAt_14010510:*");
-    results.append(part.findKey("action_:*"));
-    results.append(part.findKey("state_op:*"));
+    //results.append(part.findKey("action_:*"));
+    //results.append(part.findKey("state_op:*"));
     uint64_t queryExecTime=timer.nsecsElapsed();
     //results.append(part.findKey("updatedAt_14010510200905000"));
     //results.append(part.findKey("createdAt_14010511150209000"));

@@ -1,4 +1,5 @@
 #include "../headers/include_handler.hpp"
+#include "../headers/part_class.hpp"
 
 void Part::printAllKeys(QString treeName)
 {
@@ -63,13 +64,7 @@ void Part::importCSV(QString filePath)
 
 void Part::loadGists()
 {
-
-#ifdef __linux__
-    QDir dir("data/", "*.db");
-#elif _WIN32
-    QDir dir("data\\", "*.db");
-#endif
-
+    QDir dir(m_dataPath, "*.db");
     QFileInfoList list = dir.entryInfoList();
     for (int i = 0; i < list.size(); ++i)
     {
@@ -91,20 +86,13 @@ void Part::loadGists()
 
 void Part::dropGists()
 {
-
-#ifdef __linux__
-    QString path="data/";
-#elif _WIN32
-    QString path = "data";
-#endif
-
-    QStringList list = findFiles(path, QStringList() << "*.db" << "*.dat");
+    QStringList list = findFiles(m_dataPath, QStringList() << "*.db" << "*.dat");
     for (int i = 0; i < list.size(); ++i)
     {
         QFile file (list[i]);
         file.remove();
     }
-    QDir dir(path);
+    QDir dir(m_dataPath);
     dir.setFilter(QDir::AllDirs | QDir::NoDotAndDotDot | QDir::NoSymLinks);
     QStringList dirList = dir.entryList();
     for (int i=0; i<dirList.size(); ++i)

@@ -6,7 +6,7 @@
 #include "configs.hpp"
 #include "includes.hpp"
 #include "types.hpp"
-#include "part_class.hpp"
+#include "general_utils.h"
 
 
 #endif // INCLUDE_HANDLER_HPP

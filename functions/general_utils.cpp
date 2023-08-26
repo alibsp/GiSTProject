@@ -1,6 +1,6 @@
-#include "../headers/include_handler.hpp"
+#include "../headers/general_utils.h"
 
-void Part::checkAndRemoveIlligalChar(char *str, char c)
+void GeneralUtils::checkAndRemoveIlligalChar(char *str, char c)
 {
     if(strchr(str, c) != NULL){
         char *pr = str, *pw = str;
@@ -12,12 +12,12 @@ void Part::checkAndRemoveIlligalChar(char *str, char c)
     }
 }
 
-void Part::hashFileName(char *fileName, char *output)
+void GeneralUtils::hashFileName(char *fileName, char *output)
 {
     strncpy(output, QCryptographicHash::hash(fileName, QCryptographicHash::Md5).toHex().data(), 100);
 }
 
-void Part::hexStrToBin(const char* uuid, unsigned char* bins)   //aldaghi
+void GeneralUtils::hexStrToBin(const char* uuid, unsigned char* bins)   //aldaghi
 {
     unsigned char i=0, byte=0, res=0;
     //unsigned char* bins = (unsigned char*)malloc( 16*sizeof(char) );    //Always assign a new, free memory to this pointer! As the reference will be copied to the *out parameter of the very first call to this function and thus, never will be deleted after going out of scope!
@@ -39,7 +39,7 @@ void Part::hexStrToBin(const char* uuid, unsigned char* bins)   //aldaghi
     //We cannot free bins here as the memory address now being used by *out !
 }
 
-void Part::binToHexStr(const unsigned char* bins, char* out) //shahab
+void GeneralUtils::binToHexStr(const unsigned char* bins, char* out) //shahab
 {
     //char output[37];
     char const hex_chars[16] = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f' };
@@ -57,7 +57,7 @@ void Part::binToHexStr(const unsigned char* bins, char* out) //shahab
 }
 
 //term = "source_gitlab\0"
-void Part::extractKeyValue(const char *term, char *key, char *value)
+void GeneralUtils::extractKeyValue(const char *term, char *key, char *value)
 {
     for (int i=0, sw=0, j=0;;i++)
     {

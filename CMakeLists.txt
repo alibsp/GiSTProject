@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.14)
 
-project(cleanUpTry LANGUAGES CXX)
+project(GiSTProject LANGUAGES CXX)
 
 set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTOMOC ON)
@@ -12,7 +12,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Core)
 find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Core)
 
-add_executable(cleanUpTry
+add_executable(GiSTProject
   main.cpp
   functions/DiskIO.cpp
   functions/DB_CRUD/create.cpp
@@ -20,8 +20,7 @@ add_executable(cleanUpTry
   functions/DBfiles_utils.cpp
   functions/general_utils.cpp
   tests/insertTest.cpp
-  extension_implementation/core_BTree/gist_btree.cpp extension_implementation/core_BTree/gist_btree.h
-  extension_implementation/btree_ext.cpp
+  extension_implementation/core_BTree/gist_btree.cpp extension_implementation/core_BTree/gist_btree.h extension_implementation/btree_ext.cpp
   headers/macros.hpp
   headers/configs.hpp
   headers/includes.hpp
@@ -33,10 +32,10 @@ add_executable(cleanUpTry
   #core_GiST/gist_support.cpp core_GiST/gist_support.h
 
 )
-target_link_libraries(cleanUpTry Qt${QT_VERSION_MAJOR}::Core)
+target_link_libraries(GiSTProject Qt${QT_VERSION_MAJOR}::Core)
 
 include(GNUInstallDirs)
-install(TARGETS cleanUpTry
+install(TARGETS GiSTProject
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
     RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
 )

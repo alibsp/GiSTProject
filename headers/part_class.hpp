@@ -3,12 +3,13 @@
 
 #include "includes.hpp"
 #include "types.hpp"
-
 class Part : public QObject
 {
     Q_OBJECT
+    Q_PROPERTY(QString dataPath READ dataPath WRITE setDataPath NOTIFY dataPathChanged)
+
 public:
-    explicit Part(QObject *parent = nullptr);
+    explicit Part(QString dataPath, QObject *parent = nullptr);
     void insertRecord(const char * id, const char *keys);
     QList<UUID> findKey(const char *key_value);
     void printAllKeys(QString treeName);    //Mr. Aladaghi + shahab
@@ -31,7 +32,14 @@ public:
     int closePostingFd(int fd);  //Shahab
     //-----------------------------------------------------------------------------|END Shahab|------------------------------------------------------------------------------------------
 
+    QString dataPath() const;
+
+public slots:
+    void setDataPath(QString dataPath);
+
 signals:
+    void dataPathChanged(QString dataPath);
+
 private:
     QMap<QString, gist*> gists;
     //QMap<QString, FILE*> files;
@@ -40,12 +48,13 @@ private:
 
     void insertTerm(const char *id, const char *term);
     bool insertId(const char *id);
-    void extractKeyValue(const char *term, char *key, char *value);
+    //void extractKeyValue(const char *term, char *key, char *value);
     QStringList findFiles(const QString &startDir, const QStringList &filters);
 
     FILE *getPostingFileHandle(const char *path, const char *keyname, const char *filename, unsigned char mode);
     FILE *getPostingFileHandleForWrite(const char *path, const char *keyname, const char *filename);
     FILE *getPostingFileHandleForRead(const char *path, const char *keyname, const char *filename);
+    QString m_dataPath;
 };
 
 

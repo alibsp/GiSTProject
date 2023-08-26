@@ -5,6 +5,7 @@
 #include <unistd.h>     //for lseek(2)  //Shahab   //Unnecessary
 #include <sys/stat.h>   //For stat(2)   //Shahab
 #include <QObject>
+#include <QString>
 #include <QElapsedTimer>
 #include <QMap>
 #include "../core_GiST/gist.h"

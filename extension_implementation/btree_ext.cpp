@@ -1,4 +1,5 @@
 #include "../headers/include_handler.hpp"
+#include "../headers/part_class.hpp"
 
 char Part::compareBins(unsigned char* first, unsigned char* second) //shahab
 {

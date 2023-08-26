@@ -1,4 +1,6 @@
 #include "../../headers/include_handler.hpp"
+#include "../../headers/part_class.hpp"
+
 
 QList<UUID> Part::findKey(const char * key_value)   //Mr. mahmoudi??
 {
@@ -6,7 +8,7 @@ QList<UUID> Part::findKey(const char * key_value)   //Mr. mahmoudi??
     //timer.start();
     char key[KEY_LEN]={0};
     char value[KEY_LEN]={0};
-    extractKeyValue(key_value, key, value);
+    GeneralUtils::extractKeyValue(key_value, key, value);
     QList<UUID> results;
     gist *myGist=gists[key];
 
@@ -49,8 +51,8 @@ QList<UUID> Part::findKey(const char * key_value)   //Mr. mahmoudi??
                 char postingFilePath[255];
                 unsigned char postingFileReadBuffer[PAGING_COUNT*RECORD_SIZE];
                 char fileName[100];
-                hashFileName(keyFound, fileName);
-                snprintf(postingFilePath, 255, "data/%s/%s.dat", key, fileName);   //Shahab
+                GeneralUtils::hashFileName(keyFound, fileName);
+                snprintf(postingFilePath, 255, "%s%s/%s.dat", m_dataPath.toUtf8().data(), key, fileName);   //Shahab
                 FILE *fp=getPostingFileHandleForRead(postingFilePath, key, fileName);
                 if(fp)
                 {
@@ -108,8 +110,8 @@ bool Part::isKeyExist(const char *key_value, void *data)
 {
     char key[KEY_LEN]={0};
     char value[KEY_LEN]={0};
-    extractKeyValue(key_value, key, value);
-    isKeyExist(key, value, data);
+    GeneralUtils::extractKeyValue(key_value, key, value);
+    return isKeyExist(key, value, data);
 }
 
 bool Part::isKeyExist(const char *key, const char *value, void *data)
