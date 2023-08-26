@@ -211,7 +211,8 @@ int main(int argc, char *argv[])
     QElapsedTimer timer;
     timer.start();
 
-    QList<UUID> results=part.findKey("updatedAt_14010510:*");
+    //QList<UUID> results=part.findKey("updatedAt_14010510:*");
+    QList<UUID> results=part.findKey("action", "update:*");
     //results.append(part.findKey("action_:*"));
     //results.append(part.findKey("state_op:*"));
     uint64_t queryExecTime=timer.nsecsElapsed();

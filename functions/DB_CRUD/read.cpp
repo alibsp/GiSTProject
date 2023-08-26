@@ -2,13 +2,21 @@
 #include "../../headers/part_class.hpp"
 
 
-QList<UUID> Part::findKey(const char * key_value)   //Mr. mahmoudi??
+
+QList<UUID> Part::findKey(const char * key_value)
 {
     //QElapsedTimer timer;
     //timer.start();
     char key[KEY_LEN]={0};
     char value[KEY_LEN]={0};
     GeneralUtils::extractKeyValue(key_value, key, value);
+    return findKey(key, value);
+}
+
+
+QList<UUID> Part::findKey(const char * key, const char * value)
+{
+
     QList<UUID> results;
     gist *myGist=gists[key];
 
@@ -104,17 +112,22 @@ QList<UUID> Part::findKey(const char * key_value)   //Mr. mahmoudi??
     return results;
 }
 
+QList<UUID> Part::query(const QString query)
+{
+
+}
+
 //Start Mr. MahmoudiNik
 //Continue by Aldaghi(Add unsigned char *data to reuslt)
-bool Part::isKeyExist(const char *key_value, void *data)
+bool Part::isKeyExist(const char *key_value, void *outpuData)
 {
     char key[KEY_LEN]={0};
     char value[KEY_LEN]={0};
     GeneralUtils::extractKeyValue(key_value, key, value);
-    return isKeyExist(key, value, data);
+    return isKeyExist(key, value, outpuData);
 }
 
-bool Part::isKeyExist(const char *key, const char *value, void *data)
+bool Part::isKeyExist(const char *key, const char *value, void *outpuData)
 {
     //This method checks if a "key-value" exists in tree or not
 
@@ -132,7 +145,7 @@ bool Part::isKeyExist(const char *key, const char *value, void *data)
     bool find=false;
     while (!eof)
     {
-        if(myGist->fetch(cursor, (void *)&keyFound, keysz, data, datasz, eof)!=RCOK)
+        if(myGist->fetch(cursor, (void *)&keyFound, keysz, outpuData, datasz, eof)!=RCOK)
         {
             cerr << "Can't fetch from cursor." << endl;
             find=false;

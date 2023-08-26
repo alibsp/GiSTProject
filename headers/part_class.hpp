@@ -11,10 +11,16 @@ class Part : public QObject
 public:
     explicit Part(QString dataPath, QObject *parent = nullptr);
     void insertRecord(const char * id, const char *keys);
+
     QList<UUID> findKey(const char *key_value);
+    QList<UUID> findKey(const char * key, const char * value);
+
+    QList<UUID> query(const QString query);
+
+
     void printAllKeys(QString treeName);    //Mr. Aladaghi + shahab
-    bool isKeyExist(const char *key, const char *value, void * data);   //Mr. Mahmoudi
-    bool isKeyExist(const char *key_value, void *data); //Mr. Aladaghi + Mr. Mahmoudi
+    bool isKeyExist(const char *key, const char *value, void * outpuData);   //Mr. Mahmoudi
+    bool isKeyExist(const char *key_value, void *outpuData); //Mr. Aladaghi + Mr. Mahmoudi
     void importCSV(QString filePath);
     void loadGists();
     void dropGists();
