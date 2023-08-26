@@ -18,10 +18,10 @@ using namespace std;
 #endif
 // VCPORT_E
 
-#include "../GiST/gist_compat.h" // for MAXINT/MININT
-#include "../GiST/gist_cursorext.h" // for gist_cursorext_t::*
+#include "../../core_GiST/gist_compat.h" // for MAXINT/MININT
+#include "../../core_GiST/gist_cursorext.h" // for gist_cursorext_t::*
 #include "gist_btree.h"
-#include "../GiST/gist_support.h"
+#include "../../core_GiST/gist_support.h"
 //#include "../GiST/gist_support.h"	// for print<>, parse<>, etc.
 #include <assert.h>
 

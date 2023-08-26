@@ -7,9 +7,9 @@
 #include "part.h"
 
 void myPrintPredFct(
-        std::ostream& s, // what to print to
-        const vec_t& pred, // pred.ptr(0) contains pointer to 8-byte aligned predicate
-        int level)
+    std::ostream& s, // what to print to
+    const vec_t& pred, // pred.ptr(0) contains pointer to 8-byte aligned predicate
+    int level)
 {
 
 }
@@ -131,8 +131,8 @@ int stringTest()
         }
     }
     //char my_key[100]="Ali Aldaghi";
-//    int my_data = 1000;
-//    myGist.insert((void *) &my_key, 100, (void *) &my_data, sizeof(int));
+    //    int my_data = 1000;
+    //    myGist.insert((void *) &my_key, 100, (void *) &my_data, sizeof(int));
 
     //bt_query_t qRemove(bt_query_t::bt_eq, my_key, my_key);
 
@@ -181,9 +181,10 @@ int main(int argc, char *argv[])
 
     QString csvFile;
 #ifdef __linux__
-    csvFile = "/usr/local/part/data.csv";
+    //csvFile = "/usr/local/part/data.csv";
     //csvFile = "/media/ali/Data/Programming/Projects/Part/Data/data2.csv";
     //csvFile = "/home/mahmoudmahmoudinik/Data/data2.csv";
+    csvFile = "/home/shahabseddigh/Desktop/data2.csv";
 #elif _WIN32
     csvFile = "D:\\Programming\\Projects\\Part\\Data\\data.csv";
 #endif
@@ -192,7 +193,7 @@ int main(int argc, char *argv[])
     //char bb[100]="  b";
     //cout<<str_cmp((void*)aa, (void*)bb)<<" "<< strcmp(aa, bb)<<endl;
     //return 0;
-    bool clean=false;
+    bool clean=true;
     Part part;
     if(clean)
     {
