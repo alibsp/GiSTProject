@@ -1,8 +1,9 @@
 #ifndef PART_CLASS_HPP
 #define PART_CLASS_HPP
 
-#include "includes.hpp"
-#include "types.hpp"
+#include "include_handler.hpp"
+
+
 class Part : public QObject
 {
     Q_OBJECT

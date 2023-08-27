@@ -51,7 +51,7 @@ Files inside GiSTProject (root directory):
 | Depth | Name | Functions/Content | Description |
 | :---: | :--: | :-------: | :---------: |
 | 0 | `CMakeLists.txt` | * | CMake file |
-| 0 | `main.cpp` | `myPrintPredFct()`, `myPrintDataFct()`, `intTest()`, `rand_string()`, `stringTest()`, `main()` | CMake file |
+| 0 | `main.cpp` | `myPrintPredFct()`, `myPrintDataFct()`, `intTest()`, `rand_string()`, `stringTest()`, `main()` | Program's starting point |
 | 0 | `README.md` | * | This README file |
 | 0 | core_GiST | DIR | Renamed old GiST folder to core_GiST |
 | 0 | extension_implementation | DIR | Everything related to GiST extensions |
@@ -69,8 +69,8 @@ Files inside GiSTProject (root directory):
 | 1 | functions/**`part_class.cpp`** | `Part::Part()` | Every definition that directly related to `class Part` it's own |
 | 1 | headers/**`macros.hpp`** | `#define _GNU_SOURCE 1` | Macros needed by `c/c++` language or compiler |
 | 1 | headers/**`configs.hpp`** | `#define PAGING_COUNT 512`, `#define RECORD_SIZE 16` etc. | Macros used as configurable values, changing program's behavior and/or performance |
-| 1 | headers/**`includes.hpp`** | `#include <fcntl.h>`, `#include "../core_GiST/gist.h"`, `#include <QDir>` etc. | `#include` lines needed by other files, maily by **functions** directory's files |
-| 1 | headers/**`types.hpp`** | `struct UUID{}`, `struct FileStateManager{}` | Struct and type declarations by other parts of program |
+| 1 | headers/**`includes.hpp`** | `#include <fcntl.h>`, `#include "../core_GiST/gist.h"`, `#include <QDir>` etc. | `#include` lines needed by other files, mainly by **functions** directory's files |
+| 1 | headers/**`types.hpp`** | `struct UUID{}`, `struct FileStateManager{}` | Struct and type declarations, used by other parts of program |
 | 1 | headers/**`part_class.hpp`** | Multiple function and object declarations | Declarations of functions and objects defined as members of `class Part` |
 | 1 | headers/**`include_handler.hpp`** | `#include "macros.hpp"`, `#include "configs.hpp"`, `#include "includes.hpp"` etc. | Unified header file to be included by `.cpp` files for the ease of use, along with manageability |
 | 1 | tests/**`insertTest.cpp`** | `Part::testInserts()` | Functions that perform insertion test into the tree |

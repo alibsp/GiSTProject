@@ -1,4 +1,4 @@
-#include "../headers/general_utils.h"
+#include "../headers/part_class.hpp"
 
 void GeneralUtils::checkAndRemoveIlligalChar(char *str, char c)
 {

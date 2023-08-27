@@ -1,4 +1,3 @@
-#include "../headers/include_handler.hpp"
 #include "../headers/part_class.hpp"
 
 void Part::testInserts()
