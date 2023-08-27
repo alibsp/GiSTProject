@@ -1,9 +1,5 @@
 #include <QCoreApplication>
-#include <QElapsedTimer>
 #include <QDebug>
-#include "core_GiST/gist.h"
-#include "extension_implementation/core_BTree/gist_btree.h"
-#include "core_GiST/gist_cursor.h"
 #include "headers/part_class.hpp"
 
 void myPrintPredFct(

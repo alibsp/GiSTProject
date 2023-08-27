@@ -1,4 +1,3 @@
-#include "../headers/include_handler.hpp"
 #include "../headers/part_class.hpp"
 
 Part::Part(QString dataPath, QObject *parent) : QObject(parent), m_dataPath(dataPath)
