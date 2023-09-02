@@ -27,16 +27,28 @@ public:
     void dropGists();
     void testInserts();
     FILE *openFile(const char *fileName, const char *mode);
-    void checkAndRemoveIlligalChar(char* str, char c);//mahmoud
+    void vect_intersect(const std::vector<UUID> &list1, const std::vector<UUID> &list2, std::vector<UUID> &result); //Aladaghi
+    void vect_union(const std::vector<UUID> &list1, const std::vector<UUID> &list2, std::vector<UUID> &result);  //Aladaghi
 
-    void hashFileName(char *fileName, char *output);
+    //void checkAndRemoveIlligalChar(char* str, char c);//mahmoud
+    // Intersects two Vector of UUIDs
+    void uuid_intersect(vector<UUID> &vec_a,vector<UUID> &vec_b, std::vector<UUID>& res_intersect);  //Mahmoudi
+
+    // Do Uinion on two Vector of UUIDs
+    void uuid_union(vector<UUID> &vec_a,vector<UUID> &vec_b, std::vector<UUID>& res_union);  //Mahmoudi
+    QStringList getAllTreeNames();  //Mahmoudi
+
+    //void hashFileName(char *fileName, char *output);
     //-------------------------------------------------------------------------------|Shahab|--------------------------------------------------------------------------------------------
-    void hexStrToBin(const char* uuid, unsigned char *bins);   //shahab
-    void binToHexStr(const unsigned char* bins, char* out); //shahab
+    //void hexStrToBin(const char* uuid, unsigned char *bins);   //shahab
+    //void binToHexStr(const unsigned char* bins, char* out); //shahab
     char compareBins(unsigned char* first, unsigned char* second);  //Shahab
     int openFileV2(const char* pathname, int flags);   //shahab
     int readPostingFile(int fd, int countOfDataInside, unsigned char* readBuffer, char* isEof, int &currentPage);    //shahab
     int closePostingFd(int fd);  //Shahab
+    //std::string queryParser(std::string exp);   //Shahab
+    void findKeyVectorDriver(const char * key_value, std::vector<UUID>& resOut);
+    void findKeyVector(const char *key, const char *value, vector<UUID>& results);
     //-----------------------------------------------------------------------------|END Shahab|------------------------------------------------------------------------------------------
 
     QString dataPath() const;

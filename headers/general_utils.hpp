@@ -11,6 +11,7 @@ public:
     static void hexStrToBin(const char* uuid, unsigned char* bins);   //aldaghi
     static void binToHexStr(const unsigned char* bins, char* out); //shahab
     static void extractKeyValue(const char *term, char *key, char *value);
+    std::string queryParser(std::string exp);  //Shahab
 
 };
 
