@@ -78,3 +78,8 @@ void GeneralUtils::extractKeyValue(const char *term, char *key, char *value)
             break;
     }
 }
+
+std::string GeneralUtils::queryParser(std::string exp)  //Shahab
+{
+    //split by space
+}
