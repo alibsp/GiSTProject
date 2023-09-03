@@ -8,10 +8,5 @@
 #define KEY_LEN 101     //Mr. Aladaghi
 #define BUCKET_SIZE 10 //Mr.mahmoudi??    //Used in findkey() if(count == 10) section
 #define OPEN_FILE_LIMIT 200 //Mr. Aladaghi
-<<<<<<< Updated upstream
-#define CSV_FILE_PATH "/home/shahabseddigh/Desktop/data2.csv"
-#define TREE_DATA_FOLDER "data/"
-=======
->>>>>>> Stashed changes
 
 #endif // CONFIGS_HPP

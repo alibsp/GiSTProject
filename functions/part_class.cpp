@@ -1,7 +1,5 @@
 #include "../headers/part_class.hpp"
 
-<<<<<<< Updated upstream
-=======
 int compareBins(void* a, void* b)
 {
     //char notEqual = 0;
@@ -22,7 +20,6 @@ int compareBins(void* a, void* b)
     return 0;   //They were equal
 }
 
->>>>>>> Stashed changes
 Part::Part(QString dataPath, QObject *parent) : QObject(parent), m_dataPath(dataPath)
 {
     // testInserts();

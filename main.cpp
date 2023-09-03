@@ -303,11 +303,7 @@ int main(int argc, char *argv[])
     csvFile = "/usr/local/part/data_10000.csv";
     //csvFile = "/media/ali/Data/Programming/Projects/Part/Data/data2.csv";
     //csvFile = "/home/mahmoudmahmoudinik/Data/data2.csv";
-<<<<<<< Updated upstream
-    //csvFile = "/home/shahabseddigh/Desktop/data2.csv";
-=======
     csvFile = "/home/shahabseddigh/Desktop/data2.csv";
->>>>>>> Stashed changes
 #elif _WIN32
     csvFile = "D:\\Programming\\Projects\\Part\\Data\\data.csv";
 #endif
@@ -316,14 +312,9 @@ int main(int argc, char *argv[])
     //char bb[100]="  b";
     //cout<<str_cmp((void*)aa, (void*)bb)<<" "<< strcmp(aa, bb)<<endl;
     //return 0;
-<<<<<<< Updated upstream
-    bool clean=false;
-    Part part("/usr/local/part/data/");
-=======
     /*bool clean=true;
     Part part("data/");
     GeneralUtils utils;
->>>>>>> Stashed changes
     if(clean)
     {
         QElapsedTimer timer;
@@ -536,10 +527,6 @@ int main(int argc, char *argv[])
     //QElapsedTimer timer;
     //timer.start();
 
-<<<<<<< Updated upstream
-    //QList<UUID> results=part.findKey("updatedAt_14010510:*");
-    QList<UUID> results=part.findKey("action", "update:*");
-=======
    //QList<UUID> results1=part.findKey("updatedAt_14010510:*");
     //QList<UUID> results1=part.findKey("participantUsername_reza.mahmoudi");
     //QList<UUID> results1=part.findKey("labels_تخته: دات نت");
@@ -679,7 +666,6 @@ int main(int argc, char *argv[])
     //vector<UUID> r= part.uuid_union(results.toVector().toStdVector(),results.toVector().toStdVector());
     //qDebug() << "after union:"
   //  QList<UUID> results=part.findKey("action", "update:*");
->>>>>>> Stashed changes
     //results.append(part.findKey("action_:*"));
     //results.append(part.findKey("state_op:*"));
     uint64_t queryExecTime=timer.nsecsElapsed();
@@ -696,14 +682,9 @@ int main(int argc, char *argv[])
         char output[37];
         part.binToHexStr(res.val, output);
         qDebug() << "ID: -->\t" << output;
-    }*/
+    }
     qDebug()<<"Query Exec Time: "<<queryExecTime/1000000.0<<" ms, record count:"<<results.count();
-    qDebug()<<"finish.";
-<<<<<<< Updated upstream
-=======
-
-    */
+    qDebug()<<"finish.";*/
 #pragma endregion
 
->>>>>>> Stashed changes
 }
