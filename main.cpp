@@ -11,7 +11,8 @@
 
 
 #pragma region shahab_interface
-std::queue<std::string> shuntingYard(const std::string& exp)
+
+std::queue<std::string> shuntingYard(const std::string &exp)
 {
     #pragma region shuntingYard_variables
     std::queue<std::string> resQueue;
@@ -22,58 +23,81 @@ std::queue<std::string> shuntingYard(const std::string& exp)
 
     #pragma region shuntingYard_main_loop
     int i = 0;
-    while (i<exp.length())
+    while (i < exp.length())
     {
-        if( exp[i] == '(') {opsVectorStack.push((charToStr = exp[i]) ); i++;}
-        else if( exp[i] == ')' )
+        if (exp[i] == '(')
         {
-            if(!resString.empty())
+            opsVectorStack.push((charToStr = exp[i]));
+            i++;
+        }
+        else if (exp[i] == ')')
+        {
+            if (!resString.empty())
             {
                 resQueue.push(resString);
                 resString.clear();
             }
-            while((opsVectorStack.top() != "(") && (!opsVectorStack.empty()) )
+            while ((opsVectorStack.top() != "(") && (!opsVectorStack.empty()))
             {
-                resQueue.push( opsVectorStack.top() );
+                resQueue.push(opsVectorStack.top());
                 opsVectorStack.pop();
             }
-            if( (opsVectorStack.top() == "(") ){opsVectorStack.pop(); i++;}
+            if ((opsVectorStack.top() == "("))
+            {
+                opsVectorStack.pop();
+                i++;
+            }
         }
-        else if( (exp[i] >= 33 && exp[i] <= 122) ) { resString += exp[i]; i++;}
-        else if( exp[i] == '&' && exp[i+1] == '&')
+        else if ((exp[i] >= 33 && exp[i] <= 122))
         {
-            if(!resString.empty())
+            resString += exp[i];
+            i++;
+        }
+        else if (exp[i] == '&' && exp[i + 1] == '&')
+        {
+            if (!resString.empty())
             {
                 resQueue.push(resString);
                 resString.clear();
             }
-            charToStr = exp[i]; charToStr += exp[i+1];
-            opsVectorStack.push(charToStr ); i+=2;
+            charToStr = exp[i];
+            charToStr += exp[i + 1];
+            opsVectorStack.push(charToStr);
+            i += 2;
         }
-        else if( exp[i] == '|' && exp[i+1] == '|')
+        else if (exp[i] == '|' && exp[i + 1] == '|')
         {
-            if(!resString.empty())
+            if (!resString.empty())
             {
                 resQueue.push(resString);
                 resString.clear();
             }
             //size_t j = opsVectorStack.size();
             //while( j>0 )
-            while(true)
+            while (true)
             {
-                if( (opsVectorStack.top() == "&&") || (opsVectorStack.top() == "||") ){opsVectorStack.pop(); continue;}
-                else{ break;}
+                if ((opsVectorStack.top() == "&&") || (opsVectorStack.top() == "||"))
+                {
+                    opsVectorStack.pop();
+                    continue;
+                }
+                else
+                {
+                    break;
+                }
             }
-            charToStr = exp[i]; charToStr += exp[i+1];
-            opsVectorStack.push(charToStr ); i+=2;
+            charToStr = exp[i];
+            charToStr += exp[i + 1];
+            opsVectorStack.push(charToStr);
+            i += 2;
         }
     }
     #pragma endregion
 
     #pragma region shuntingYard_remaining_items_loop
-    while( !opsVectorStack.empty() )
+    while (!opsVectorStack.empty())
     {
-        resQueue.push( opsVectorStack.top() );
+        resQueue.push(opsVectorStack.top());
         opsVectorStack.pop();
     }
 
@@ -82,17 +106,17 @@ std::queue<std::string> shuntingYard(const std::string& exp)
     #pragma endregion
 }
 
-void queryExecuter(std::queue<std::string> resQueue, Part& part, std::vector<UUID>& searchResult)
+void queryExecuter(std::queue<std::string> resQueue, Part &part, std::vector<UUID> &searchResult)
 {
     std::stack<std::vector<UUID>> parseStack;
 
     while (!resQueue.empty())
     {
-        if( ( (resQueue.front() != "&&") && (resQueue.front() != "||") ) )
+        if (((resQueue.front() != "&&") && (resQueue.front() != "||")))
         {
             std::vector<UUID> findKeyResult;
-            part.findKeyVectorDriver( resQueue.front().c_str(), findKeyResult );
-            parseStack.push( findKeyResult );
+            part.findKeyVectorDriver(resQueue.front().c_str(), findKeyResult);
+            parseStack.push(findKeyResult);
             resQueue.pop();
         }
         else
@@ -105,16 +129,16 @@ void queryExecuter(std::queue<std::string> resQueue, Part& part, std::vector<UUI
             firstArg = parseStack.top();
             parseStack.pop();
 
-            if(resQueue.front() == "&&")
+            if (resQueue.front() == "&&")
             {
                 part.uuid_intersect(firstArg, secondArg, operationRes);
-                parseStack.push( operationRes );
+                parseStack.push(operationRes);
                 resQueue.pop();
             }
             else
             {
                 part.uuid_union(firstArg, secondArg, operationRes);
-                parseStack.push( operationRes );
+                parseStack.push(operationRes);
                 resQueue.pop();
             }
         }
@@ -126,15 +150,15 @@ void queryExecuter(std::queue<std::string> resQueue, Part& part, std::vector<UUI
 
 
 void myPrintPredFct(
-    std::ostream& s, // what to print to
-    const vec_t& pred, // pred.ptr(0) contains pointer to 8-byte aligned predicate
-    int level)
+        std::ostream &s, // what to print to
+        const vec_t &pred, // pred.ptr(0) contains pointer to 8-byte aligned predicate
+        int level)
 {
 
 }
 
-void myPrintDataFct(std::ostream& s, // what to print to
-                    const vec_t& data)
+void myPrintDataFct(std::ostream &s, // what to print to
+                    const vec_t &data)
 {
 
 }
@@ -144,7 +168,7 @@ int intTest()
 {
     gist myGist;
     //ایجاد پایگاه داده با افزونه BTree
-    if(myGist.create("DataInt.db", &bt_int_ext)==RCOK)
+    if (myGist.create("DataInt.db", &bt_int_ext) == RCOK)
     {
 
         //تولید اعداد تصادفی برای درج در پایگاه داده
@@ -163,7 +187,7 @@ int intTest()
     }
     else // File maybe Exist
     {
-        if(myGist.open("DataInt.db")!=RCOK)
+        if (myGist.open("DataInt.db") != RCOK)
         {
             cerr << "Can't Open File." << endl;
             return 0;
@@ -173,25 +197,25 @@ int intTest()
     bt_query_t q(bt_query_t::bt_betw, new int(1200), new int(1500));
     gist_cursor_t cursor;
 
-    if(myGist.fetch_init(cursor, &q)!=RCOK)
+    if (myGist.fetch_init(cursor, &q) != RCOK)
     {
         cerr << "Can't initialize cursor." << endl;
-        return(eERROR);
+        return (eERROR);
     }
 
     bool eof = false;
     int key, data;
-    smsize_t keysz=sizeof(int), datasz=sizeof(int);
+    smsize_t keysz = sizeof(int), datasz = sizeof(int);
     while (!eof)
     {
-        if(myGist.fetch(cursor, (void *)&key, keysz, (void *)&data, datasz, eof)!=RCOK)
+        if (myGist.fetch(cursor, (void *) &key, keysz, (void *) &data, datasz, eof) != RCOK)
         {
             cerr << "Can't fetch from cursor." << endl;
-            return(eERROR);
+            return (eERROR);
         }
         if (!eof)
         {
-            std::cout<<key<<"->"<<data<<endl;
+            std::cout << key << "->" << data << endl;
         }
         // process key and data...
     }
@@ -219,31 +243,31 @@ int stringTest()
 {
     gist myGist;
     //ایجاد پایگاه داده با افزونه BTree
-    if(myGist.create("DataString.db", &bt_str_ext)==RCOK)
+    if (myGist.create("DataString.db", &bt_str_ext) == RCOK)
     {
 
         //تولید رشته های تصادفی برای درج در پایگاه داده
         srand(time(0));
         int lb = 3, ub = 100;
 
-        for (int i = 0, k=1; i < 10000; i++)
+        for (int i = 0, k = 1; i < 10000; i++)
         {
             for (int j = 0; j < 1000; j++)
             {
-                char key[100]={0};
-                int len=(rand() % (ub - lb + 1)) + lb;
+                char key[100] = {0};
+                int len = (rand() % (ub - lb + 1)) + lb;
                 rand_string(key, len);
                 int data = k++;
                 myGist.insert((void *) &key, 100, (void *) &data, sizeof(int));
             }
             //12532000 + 131000 + 118000 + 166000 + 1000 + 100000
             myGist.flush();
-            cout << "Insert "<<k-1<< " Record ok" << endl;
+            cout << "Insert " << k - 1 << " Record ok" << endl;
         }
     }
     else // File maybe Exist
     {
-        if(myGist.open("DataString.db")!=RCOK)
+        if (myGist.open("DataString.db") != RCOK)
         {
             cerr << "Can't Open File." << endl;
             return 0;
@@ -266,28 +290,30 @@ int stringTest()
     bt_query_t q(bt_query_t::bt_betw, key1, key2);
     //bt_query_t q(bt_query_t::bt_eq, &key1, key2);
     gist_cursor_t cursor;
-    if(myGist.fetch_init(cursor, &q)!=RCOK)
+    if (myGist.fetch_init(cursor, &q) != RCOK)
     {
         cerr << "Can't initialize cursor." << endl;
-        return(eERROR);
+        return (eERROR);
     }
     bool eof = false;
 
     int data;
-    smsize_t keysz=100, datasz=sizeof(int);
-    char key[100]={0};
+    smsize_t keysz = 100, datasz = sizeof(int);
+    char key[100] = {0};
     while (!eof)
     {
-        if(myGist.fetch(cursor, (void *)&key, keysz, (void *)&data, datasz, eof)!=RCOK)
+        if (myGist.fetch(cursor, (void *) &key, keysz, (void *) &data, datasz, eof) != RCOK)
         {
             cerr << "Can't fetch from cursor." << endl;
-            return(eERROR);
+            return (eERROR);
         }
         if (!eof)
-            cout<<(char*)&key<<"->"<<data<<endl;
+        {
+            cout << (char *) &key << "->" << data << endl;
+        }
         // process key and data...
     }
-    cout<<endl<<"Time is:"<<timer.elapsed()<<endl;
+    cout << endl << "Time is:" << timer.elapsed() << endl;
     return 0;
 }
 
@@ -296,17 +322,17 @@ int main(int argc, char *argv[])
 {
     //intTest();
     //stringTest();
-    qDebug()<<"start...";
+    qDebug() << "start...";
 
     QString csvFile;
-#ifdef __linux__
+    #ifdef __linux__
     csvFile = "/usr/local/part/data_10000.csv";
     //csvFile = "/media/ali/Data/Programming/Projects/Part/Data/data2.csv";
     //csvFile = "/home/mahmoudmahmoudinik/Data/data2.csv";
     csvFile = "/home/shahabseddigh/Desktop/data2.csv";
-#elif _WIN32
+    #elif _WIN32
     csvFile = "D:\\Programming\\Projects\\Part\\Data\\data.csv";
-#endif
+    #endif
 
     //char aa[100]="   a";
     //char bb[100]="  b";
@@ -329,7 +355,7 @@ int main(int argc, char *argv[])
         part.loadGists();*/
 
 
-#pragma region shahab_interface_test
+    #pragma region GiSTProject_interface
     #pragma region interface_variables
     std::string queryString;
     std::vector<std::string> queryVector;
@@ -337,107 +363,125 @@ int main(int argc, char *argv[])
     Part part("data/");
     #pragma endregion
 
-    #pragma region interface_load_gists
-    std::cout << "Tree have not been loaded! Type [load tree;] or [reload tree;] to load them before anything else; or SIGSEGV will happen!" << std::endl;
+    #pragma region interface_warning_message
+    std::cout
+            << "Tree have not been loaded! Type [load tree;] or [reload tree;] to load them before anything else; or SIGSEGV will happen!"
+            << std::endl;
     #pragma endregion
 
-    #pragma region interface_read_query
-    std::getline(std::cin, queryString);
-    std::cin.clear();
-    #pragma endregion
-
-    #pragma region interface_splitting_queries
-    while ( (position = queryString.find(';')) != std::string::npos)
+    #pragma region interface_main_loop
+    while (true)
     {
+        #pragma region interface_read_query
+        std::cout << "GiSTProject:~# ";
+        std::getline(std::cin, queryString);
+        std::cin.clear();
+        #pragma endregion
 
-        int i = 0, startPosition = 0;
-        while(true)
+        #pragma region interface_splitting_queries
+        while ((position = queryString.find(';')) != std::string::npos)
         {
-            if(queryString[i] == ' ') {startPosition++; i++;}
-            else {break;}
-        }
-        queryVector.push_back( queryString.substr(startPosition, position) );
-        queryString.erase(0, position+1);
-    }
-    if(!queryString.empty())
-    {
-        std::cerr << "There were non-terminated string in your query discarded: >" << queryString << std::endl;
-    }
-    #pragma endregion
 
-    #pragma region interface_parsing_queries
-    size_t queryVectorIterator = 0;
-    if(!queryVector.empty())
-    {
-        while (queryVectorIterator < queryVector.size())
-        {
-            if (queryVector[queryVectorIterator].substr(0, 9) == "load tree")
+            int i = 0, startPosition = 0;
+            while (true)
             {
-                std::cerr << "load tree" << std::endl;
-                part.loadGists();
-            }
-
-            else if (queryVector[queryVectorIterator].substr(0, 11) == "reload tree")//part.importCSV(csvFile);
-            {
-                std::cerr << "reload tree" << std::endl;
-                part.dropGists();
-                part.importCSV(csvFile);
-            }
-
-            else if (queryVector[queryVectorIterator].substr(0, 9) == "list keys")
-            {
-                std::cerr << "list keys" << std::endl;
-                int i=0;
-                for(auto s:part.getAllTreeNames())
+                if (queryString[i] == ' ')
                 {
+                    startPosition++;
                     i++;
-                    qDebug() << i << ":" << s;
                 }
-            }
-
-            else if (queryVector[queryVectorIterator].substr(0, 4) == "quit")
-            {
-                std::cerr << "quit" << std::endl;
-                break;
-            }
-
-            else if (queryVector[queryVectorIterator].substr(0, 7) == "search ")
-            {
-                std::cerr << "search" << std::endl;
-                queryVector[queryVectorIterator].erase(0, 7);
-                if( (queryVector[queryVectorIterator].find("||") != std::string::npos) || (queryVector[queryVectorIterator].find("&&") != std::string::npos) )
+                else
                 {
-                    std::vector<UUID> searchResult;
-                    queryExecuter( shuntingYard(queryVector[queryVectorIterator]), part, searchResult );
-
-                    char searchOutput[16];
-                    std::ofstream searchOutputFile;
-                    searchOutputFile.open("searchOutput.bin");
-                    for (auto uuid : searchResult)
-                    {
-                        GeneralUtils::binToHexStr(uuid.val, searchOutput);
-                        searchOutputFile << searchOutput << std::endl;
-                    }
-                    searchOutputFile.close();
-
-                    std::cerr << "Searching is done. searchOutput.bin" << std::endl;
+                    break;
                 }
             }
-
-            else
-            {
-                std::cerr << "Unrecognized command at position: [" << queryVectorIterator << "]. Command was: " << queryVector[queryVectorIterator] << std::endl;
-            }
-
-            queryVectorIterator++;
+            queryVector.push_back(queryString.substr(startPosition, position));
+            queryString.erase(0, position + 1);
         }
+        if (!queryString.empty())
+        {
+            std::cerr << "There were non-terminated string in your query discarded: >" << queryString << std::endl;
+        }
+        #pragma endregion
+
+        #pragma region interface_parsing_queries
+        size_t queryVectorIterator = 0;
+        if (!queryVector.empty())
+        {
+            while (queryVectorIterator < queryVector.size())
+            {
+                if (queryVector[queryVectorIterator].substr(0, 9) == "load tree")
+                {
+                    std::cout << "loading tree" << std::endl;
+                    part.loadGists();
+                }
+
+                else if (queryVector[queryVectorIterator].substr(0, 11) == "reload tree")//part.importCSV(csvFile);
+                {
+                    std::cout << "reloading tree" << std::endl;
+                    part.dropGists();
+                    part.importCSV(csvFile);
+                }
+
+                else if (queryVector[queryVectorIterator].substr(0, 9) == "list keys")
+                {
+                    std::cout << "listing all keys:" << std::endl;
+                    int i = 0;
+                    for (auto s: part.getAllTreeNames())
+                    {
+                        i++;
+                        qDebug() << i << ":" << s;
+                    }
+                }
+
+                else if (queryVector[queryVectorIterator].substr(0, 4) == "quit")
+                {
+                    std::cout << "quiting..." << std::endl;
+                    return 0;
+                }
+
+                else if (queryVector[queryVectorIterator].substr(0, 7) == "search ")
+                {
+                    std::cout << "searching..." << std::endl;
+                    queryVector[queryVectorIterator].erase(0, 7);
+                    if ((queryVector[queryVectorIterator].find("||") != std::string::npos) ||
+                        (queryVector[queryVectorIterator].find("&&") != std::string::npos))
+                    {
+                        std::vector<UUID> searchResult;
+                        queryExecuter(shuntingYard(queryVector[queryVectorIterator]), part, searchResult);
+
+                        char searchOutput[37]{0};
+                        std::ofstream searchOutputFile;
+                        searchOutputFile.open("searchOutput.bin");
+                        for (auto uuid: searchResult)
+                        {
+                            GeneralUtils::binToHexStr(uuid.val, searchOutput);
+                            searchOutputFile << searchOutput << std::endl;
+                        }
+                        searchOutputFile.close();
+
+                        std::cout << "Searching is done. searchOutput.bin" << std::endl;
+                    }
+                }
+
+                else
+                {
+                    std::cerr << "Unrecognized command at position: [" << queryVectorIterator << "]. Command was: "
+                              << queryVector[queryVectorIterator] << std::endl;
+                }
+
+                queryVectorIterator++;
+            }
+            queryVector.clear(); //Empty out the vector to avoid redoing commands, if the new queryString is either empty or contains error, which won't be parsed and thus, previous contents remain in the vector.
+        }
+        #pragma endregion
     }
     #pragma endregion
 
-#pragma endregion
+    #pragma endregion
 
 
-#pragma region consoleInterface
+    #pragma region consoleInterface
     /*std::string cmd;
     Part part("data/");
     GeneralUtils generalUtils;
@@ -520,14 +564,14 @@ int main(int argc, char *argv[])
         }
 
     }*/
-#pragma endregion
+    #pragma endregion
 
 
-#pragma region testRegion
+    #pragma region testRegion
     //QElapsedTimer timer;
     //timer.start();
 
-   //QList<UUID> results1=part.findKey("updatedAt_14010510:*");
+    //QList<UUID> results1=part.findKey("updatedAt_14010510:*");
     //QList<UUID> results1=part.findKey("participantUsername_reza.mahmoudi");
     //QList<UUID> results1=part.findKey("labels_تخته: دات نت");
     // (
@@ -576,115 +620,115 @@ int main(int argc, char *argv[])
 
 
 
-   //void queryParser(std::string exp)
+    //void queryParser(std::string exp)
 
 
 
-   // CLEAN UP unnessary
-   /*
+    // CLEAN UP unnessary
+    /*
 
-   //query_parser("updatedAt=140105:* & username=ali")
-
-
-   //QList<UUID> results=part.findKey("updatedAt_14010512:*");
-
-//    for(int i=0;i< results.count();i++){
-//          char output[37];
-//          part.binToHexStr(results[i].val,output);
-//        qDebug() << i << ":"  << output;
-//    }
-
-   vector<char*> vec_a;
-    //PRINT result (not sorted)
-   int i=0;
-    for (UUID &res:results)
-    {
-        i++;
-        //char output[37];
-         char *output=(char *) malloc(37);
-        utils.binToHexStr(res.val, output);
-
-        //strncpy(cpy, output,37);
-        //memcpy(cpy,output, sizeof(cpy));
-        qDebug() << i << ": -->\t" << output;
-        vec_a.push_back(output);
-       // free(output);
-
-    }
-   //vector<unsigned char* > vec_a=results.toVector().toStdVector();
-    //sort(vec_a.begin(),vec_a.end(),compare_bigger);
+    //query_parser("updatedAt=140105:* & username=ali")
 
 
+    //QList<UUID> results=part.findKey("updatedAt_14010512:*");
 
-   std::sort(vec_a.begin(), vec_a.end(),comparisonFunc);
-//    //PRINT sroted
-//     qDebug() << "Sorted:" ;
-//    i=0;
-//    for (auto &res:vec_a)
-//    {
-//        i++;
-//        //char output[37];
-//        //utils.binToHexStr(res, output);
-//        qDebug() << i << ": -->\t" << res;
-//    }
+ //    for(int i=0;i< results.count();i++){
+ //          char output[37];
+ //          part.binToHexStr(results[i].val,output);
+ //        qDebug() << i << ":"  << output;
+ //    }
 
-
-    QList<UUID> results2=part.findKey("updatedAt_14010512:*");
-    vector<char*> vec_b;
+    vector<char*> vec_a;
      //PRINT result (not sorted)
-
-    i=0;
-     for (UUID &res:results2)
+    int i=0;
+     for (UUID &res:results)
      {
          i++;
          //char output[37];
           char *output=(char *) malloc(37);
          utils.binToHexStr(res.val, output);
+
+         //strncpy(cpy, output,37);
+         //memcpy(cpy,output, sizeof(cpy));
          qDebug() << i << ": -->\t" << output;
-         vec_b.push_back(output);
+         vec_a.push_back(output);
+        // free(output);
 
-    }
-
-     std::sort(vec_b.begin(), vec_b.end(),comparisonFunc);
-  //    //PRINT sroted
-
-      qDebug() << "=============================================";
-      vector<char *> intersect_result;
-      set_intersection(vec_a.begin(),vec_a.end(),vec_b.begin(),vec_b.end(),back_inserter(intersect_result), comparisonFuncEQuality);
-
-      qDebug() << "interSection result:" ;
-       i=0;
-       for (auto &res:intersect_result)
-       {
-           i++;
-           qDebug() << i << ": -->\t" << res;
-       }
-
-      //vector<char*> uuid_intersetct(vector<char*> vec_a,vector<char*> vec_b);
-
-      //part.uuid_intersetct()
-    //vector<UUID> r= part.uuid_union(results.toVector().toStdVector(),results.toVector().toStdVector());
-    //qDebug() << "after union:"
-  //  QList<UUID> results=part.findKey("action", "update:*");
-    //results.append(part.findKey("action_:*"));
-    //results.append(part.findKey("state_op:*"));
-    uint64_t queryExecTime=timer.nsecsElapsed();
-    //results.append(part.findKey("updatedAt_14010510200905000"));
-    //results.append(part.findKey("createdAt_14010511150209000"));
+     }
+    //vector<unsigned char* > vec_a=results.toVector().toStdVector();
+     //sort(vec_a.begin(),vec_a.end(),compare_bigger);
 
 
-    //QSet<UUID> ids(results.begin(), results.end());
-    //uint64_t time=timer.nsecsElapsed();
-    //qDebug()<<"Find Time: "<<queryExecTime<<" ns, record count:"<<results.count();
-    /*for (UUID &res:results)   //shahab
-    {
 
-        char output[37];
-        part.binToHexStr(res.val, output);
-        qDebug() << "ID: -->\t" << output;
-    }
-    qDebug()<<"Query Exec Time: "<<queryExecTime/1000000.0<<" ms, record count:"<<results.count();
-    qDebug()<<"finish.";*/
-#pragma endregion
+    std::sort(vec_a.begin(), vec_a.end(),comparisonFunc);
+ //    //PRINT sroted
+ //     qDebug() << "Sorted:" ;
+ //    i=0;
+ //    for (auto &res:vec_a)
+ //    {
+ //        i++;
+ //        //char output[37];
+ //        //utils.binToHexStr(res, output);
+ //        qDebug() << i << ": -->\t" << res;
+ //    }
+
+
+     QList<UUID> results2=part.findKey("updatedAt_14010512:*");
+     vector<char*> vec_b;
+      //PRINT result (not sorted)
+
+     i=0;
+      for (UUID &res:results2)
+      {
+          i++;
+          //char output[37];
+           char *output=(char *) malloc(37);
+          utils.binToHexStr(res.val, output);
+          qDebug() << i << ": -->\t" << output;
+          vec_b.push_back(output);
+
+     }
+
+      std::sort(vec_b.begin(), vec_b.end(),comparisonFunc);
+   //    //PRINT sroted
+
+       qDebug() << "=============================================";
+       vector<char *> intersect_result;
+       set_intersection(vec_a.begin(),vec_a.end(),vec_b.begin(),vec_b.end(),back_inserter(intersect_result), comparisonFuncEQuality);
+
+       qDebug() << "interSection result:" ;
+        i=0;
+        for (auto &res:intersect_result)
+        {
+            i++;
+            qDebug() << i << ": -->\t" << res;
+        }
+
+       //vector<char*> uuid_intersetct(vector<char*> vec_a,vector<char*> vec_b);
+
+       //part.uuid_intersetct()
+     //vector<UUID> r= part.uuid_union(results.toVector().toStdVector(),results.toVector().toStdVector());
+     //qDebug() << "after union:"
+   //  QList<UUID> results=part.findKey("action", "update:*");
+     //results.append(part.findKey("action_:*"));
+     //results.append(part.findKey("state_op:*"));
+     uint64_t queryExecTime=timer.nsecsElapsed();
+     //results.append(part.findKey("updatedAt_14010510200905000"));
+     //results.append(part.findKey("createdAt_14010511150209000"));
+
+
+     //QSet<UUID> ids(results.begin(), results.end());
+     //uint64_t time=timer.nsecsElapsed();
+     //qDebug()<<"Find Time: "<<queryExecTime<<" ns, record count:"<<results.count();
+     /*for (UUID &res:results)   //shahab
+     {
+
+         char output[37];
+         part.binToHexStr(res.val, output);
+         qDebug() << "ID: -->\t" << output;
+     }
+     qDebug()<<"Query Exec Time: "<<queryExecTime/1000000.0<<" ms, record count:"<<results.count();
+     qDebug()<<"finish.";*/
+    #pragma endregion
 
 }
