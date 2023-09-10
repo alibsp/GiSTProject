@@ -22,4 +22,7 @@
 #include <unistd.h>
 #include <string.h>
 
+//To be used in part::findKey variants
+#include "../thirdParty/re2/include/re2/re2.h"
+
 #endif // INCLUDES_HPP
