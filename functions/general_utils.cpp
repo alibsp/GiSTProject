@@ -1,4 +1,4 @@
-#include "../headers/part_class.hpp"
+#include "../headers/include_handler.hpp"
 
 void GeneralUtils::checkAndRemoveIlligalChar(char *str, char c)
 {
@@ -76,5 +76,14 @@ void GeneralUtils::extractKeyValue(const char *term, char *key, char *value)
         }
         if(!term[i])
             break;
+    }
+}
+
+void GeneralUtils::regexBuilder(std::string& userRegex) //Shahab
+{
+    size_t pos;
+    while( (pos = userRegex.find('%')) != std::string::npos )
+    {
+        userRegex.replace( pos, 1, "[\\p{L}\\p{N}[:ascii:]]*" );
     }
 }

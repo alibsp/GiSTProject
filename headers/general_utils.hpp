@@ -9,8 +9,9 @@ public:
     static void checkAndRemoveIlligalChar(char *str, char c);
     static void hashFileName(char *fileName, char *output);
     static void hexStrToBin(const char* uuid, unsigned char* bins);   //aldaghi
-    static void binToHexStr(const unsigned char* bins, char* out); //shahab
+    static void binToHexStr(const unsigned char* bins, char* out); //Shahab
     static void extractKeyValue(const char *term, char *key, char *value);
+    static void regexBuilder(std::string& userRegex);   //Shahab
 
 };
 

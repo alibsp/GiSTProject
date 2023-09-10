@@ -49,6 +49,8 @@ public:
     //std::string queryParser(std::string exp);   //Shahab
     void findKeyVectorDriver(const char * key_value, std::vector<UUID>& resOut);
     void findKeyVector(const char *key, const char *value, vector<UUID>& results);
+    void findKeyVectorWithRegexDriver(const std::string& userCompleteRegex, std::vector<UUID>& resOut);
+    void findKeyVectorWithRegex(const char* key, const char* value, const std::string& regexToMatch, std::vector<UUID>& results);
     //-----------------------------------------------------------------------------|END Shahab|------------------------------------------------------------------------------------------
 
     QString dataPath() const;

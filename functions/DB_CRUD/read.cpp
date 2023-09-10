@@ -72,6 +72,7 @@ QList<UUID> Part::findKey(const char * key, const char * value)
                             results.append(Hexuuid);
                         }
                     }while(count);
+                    fclose(fp); //Mr. Mahmoudi + Shahab
                 }
 
                 /*
@@ -242,8 +243,96 @@ void Part::findKeyVector(const char * key, const char * value, std::vector<UUID>
                             results.push_back(Hexuuid);
                         }
                     }while(count);
+                    fclose(fp); //Mr. Mahmoudi + Shahab
                 }
             }
+        }
+    }
+    //cout<<"Execute Time: "<<timer.nsecsElapsed()<<" ns, record count:"<<results.count()<<endl;
+    return; //results;
+}
+
+void Part::findKeyVectorWithRegexDriver(const std::string& userCompleteRegex, std::vector<UUID>& resOut)
+{
+    size_t regexOperatorPos = userCompleteRegex.find('%');
+    std::string biggestSet(userCompleteRegex, 0, regexOperatorPos);
+    biggestSet += ":*";
+    std::string remainingRegex = userCompleteRegex.substr(regexOperatorPos);
+
+    char key[KEY_LEN]={0};
+    char value[KEY_LEN]={0};
+    GeneralUtils::extractKeyValue(biggestSet.c_str(), key, value);
+    GeneralUtils::regexBuilder(remainingRegex);
+    findKeyVectorWithRegex(key, value, remainingRegex, resOut);
+}
+
+void Part::findKeyVectorWithRegex(const char* key, const char* value, const std::string& regexToMatch, std::vector<UUID>& results)
+{
+
+    // std::vector<UUID> results;
+    gist *myGist=gists[key];
+
+    bt_query_t q(bt_query_t::bt_eq, (void*)value);
+    gist_cursor_t cursor;
+    if(myGist->fetch_init(cursor, &q)!=RCOK)
+    {
+        cerr << "Can't initialize cursor." << endl;
+        return; //results;
+    }
+    bool eof = false;
+    smsize_t keysz=KEY_LEN, datasz=DATA_LEN;
+
+    char keyFound[KEY_LEN]={0};
+    char data[DATA_LEN]={0};
+    unsigned int count=0;
+
+    //"[\\p{Latin}\\p{Arabic}[:ascii:]]*" instead of '%'
+    re2::RE2 compiledRegex(regexToMatch);
+
+    while (!eof)
+    {
+        if(myGist->fetch(cursor, (void *)&keyFound, keysz, (void *)&data, datasz, eof)!=RCOK)
+        {
+            cerr << "Can't fetch from cursor." << endl;
+            return; //results;
+        }
+        if (!eof)
+        {
+            if( re2::RE2::FullMatch(keyFound, compiledRegex) )
+            {
+                memcpy(&count, data, 4);
+                for (size_t i = 0; i < count && i < 10; i++)
+                {
+                    unsigned char bin_id[ID_LEN] = {0};
+                    memcpy(bin_id, data + (4 + i * ID_LEN), ID_LEN);
+                    //binToHexStr(uuid, id);
+                    UUID uuid(bin_id);
+                    results.push_back(uuid);
+                }
+                if (count == 11)//go to postingFile
+                {
+                    //---------------------------------------------|shahab|----------------------------------------------------
+                    char postingFilePath[255];
+                    unsigned char postingFileReadBuffer[PAGING_COUNT * RECORD_SIZE];
+                    char fileName[100];
+                    GeneralUtils::hashFileName(keyFound, fileName);
+                    snprintf(postingFilePath, 255, "%s%s/%s.dat", m_dataPath.toUtf8().data(), key, fileName);   //Shahab
+                    FILE *fp = getPostingFileHandleForRead(postingFilePath, key, fileName);
+                    if (fp)
+                    {
+                        do
+                        {
+                            count = fread(postingFileReadBuffer, RECORD_SIZE, PAGING_COUNT, fp) * RECORD_SIZE;
+                            for (uint i = 0; i < count; i += RECORD_SIZE)
+                            {
+                                UUID Hexuuid(postingFileReadBuffer + i);
+                                results.push_back(Hexuuid);
+                            }
+                        } while (count);
+                        fclose(fp); //Mr. Mahmoudi + Shahab
+                    }
+                }
+            }//else {/*If REGEX doesn't match, simply do nothing*/}
         }
     }
     //cout<<"Execute Time: "<<timer.nsecsElapsed()<<" ns, record count:"<<results.count()<<endl;

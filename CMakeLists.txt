@@ -2,6 +2,11 @@ cmake_minimum_required(VERSION 3.14)
 
 project(GiSTProject LANGUAGES CXX)
 
+#===========================================|Attention|===========================================|
+#Modify this variable to set your Qt path! Do not change it directly in CMAKE_PREFIX_PATH
+set(QT_SEARCH_PATH "/home/shahabseddigh/Qt/6.5.1/gcc_64/lib/cmake/Qt6")
+#===========================================|Attention|===========================================|
+
 set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
@@ -9,10 +14,15 @@ set(CMAKE_AUTORCC ON)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-list(APPEND CMAKE_PREFIX_PATH "/home/shahabseddigh/Qt/6.5.1/gcc_64/lib/cmake/Qt6")
+list(APPEND CMAKE_PREFIX_PATH QT_SEARCH_PATH)
+#For re2 (Relative path! Do not modify!!)
+list(APPEND CMAKE_PREFIX_PATH "./thirdParty/absl" "./thirdParty/re2")
 
 find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Core)
 find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Core)
+#For re2
+find_package(absl REQUIRED)
+find_package(re2 REQUIRED)
 
 add_executable(GiSTProject
   main.cpp
@@ -34,7 +44,7 @@ add_executable(GiSTProject
   #core_GiST/gist_support.cpp core_GiST/gist_support.h
 
 )
-target_link_libraries(GiSTProject Qt${QT_VERSION_MAJOR}::Core)
+target_link_libraries(GiSTProject Qt${QT_VERSION_MAJOR}::Core re2::re2)
 
 include(GNUInstallDirs)
 install(TARGETS GiSTProject

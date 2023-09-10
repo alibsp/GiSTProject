@@ -115,7 +115,15 @@ void queryExecuter(std::queue<std::string> resQueue, Part &part, std::vector<UUI
         if (((resQueue.front() != "&&") && (resQueue.front() != "||")))
         {
             std::vector<UUID> findKeyResult;
-            part.findKeyVectorDriver(resQueue.front().c_str(), findKeyResult);
+            //if statement is newly added and hasn't been FULLY tested yet!   //Shahab
+            if( (resQueue.front().find('%') != std::string::npos) )
+            {
+                part.findKeyVectorWithRegexDriver(resQueue.front(), findKeyResult);
+            }
+            else
+            {
+                part.findKeyVectorDriver(resQueue.front().c_str(), findKeyResult);
+            }
             parseStack.push(findKeyResult);
             resQueue.pop();
         }
@@ -361,12 +369,18 @@ int main(int argc, char *argv[])
     std::vector<std::string> queryVector;
     size_t position;
     Part part("data/");
+    bool loadTreeByDefault = false;
     #pragma endregion
 
     #pragma region interface_warning_message
-    std::cout
-            << "Tree have not been loaded! Type [load tree;] or [reload tree;] to load them before anything else; or SIGSEGV will happen!"
-            << std::endl;
+    if(!loadTreeByDefault)
+    {
+        std::cout << "Tree have not been loaded! Type [load tree;] or [reload tree;] to load them before anything else; or SIGSEGV will happen!" << std::endl;
+    }
+    else
+    {
+        std::cout << "Tree has been loaded by default; you can change this behavior via [loadTreeByDefault] variable" << std::endl;
+    }
     #pragma endregion
 
     #pragma region interface_main_loop
@@ -444,8 +458,7 @@ int main(int argc, char *argv[])
                 {
                     std::cout << "searching..." << std::endl;
                     queryVector[queryVectorIterator].erase(0, 7);
-                    if ((queryVector[queryVectorIterator].find("||") != std::string::npos) ||
-                        (queryVector[queryVectorIterator].find("&&") != std::string::npos))
+                    if ( (queryVector[queryVectorIterator].find("||") != std::string::npos) || (queryVector[queryVectorIterator].find("&&") != std::string::npos) )
                     {
                         std::vector<UUID> searchResult;
                         queryExecuter(shuntingYard(queryVector[queryVectorIterator]), part, searchResult);
@@ -462,12 +475,26 @@ int main(int argc, char *argv[])
 
                         std::cout << "Searching is done. searchOutput.bin" << std::endl;
                     }
+                    else if ( (queryVector[queryVectorIterator].find('(') != std::string::npos) || (queryVector[queryVectorIterator].find(')') != std::string::npos) )
+                    {
+                        std::cerr << "Search query contains parentheses but [||] or [&&] wasn't specified! Skipping..." << std::endl;
+                    }
+                    else if ( (queryVector[queryVectorIterator].find('%') != std::string::npos) )
+                    {
+                        std::cout << "searching using REGEX..." << std::endl;
+                        std::vector<UUID> resOut;
+                        part.findKeyVectorWithRegexDriver(queryVector[queryVectorIterator], resOut);
+                        std::cout << "REGEX is done." << std::endl;
+                    }
+                    else    //Absolute search term or with single :* (old method)
+                    {
+                        QList<UUID> res = part.findKey(queryVector[queryVectorIterator].c_str());
+                    }
                 }
 
                 else
                 {
-                    std::cerr << "Unrecognized command at position: [" << queryVectorIterator << "]. Command was: "
-                              << queryVector[queryVectorIterator] << std::endl;
+                    std::cerr << "Unrecognized command at position: [" << queryVectorIterator << "]. Command was: " << queryVector[queryVectorIterator] << std::endl;
                 }
 
                 queryVectorIterator++;
