@@ -48,7 +48,7 @@ std::queue<std::string> shuntingYard(const std::string &exp)
                 i++;
             }
         }
-        else if ((exp[i] >= 33 && exp[i] <= 122))
+        else if ( (exp[i] >= 39 && exp[i] <= 122) || (exp[i] >= 33 && exp[i] <= 37) )
         {
             resString += exp[i];
             i++;
