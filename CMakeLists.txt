@@ -15,7 +15,7 @@ set(CMAKE_AUTORCC ON)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-list(APPEND CMAKE_PREFIX_PATH QT_SEARCH_PATH)
+list(APPEND CMAKE_PREFIX_PATH ${QT_SEARCH_PATH})
 #For re2 (Relative path! Do not modify!!)
 list(APPEND CMAKE_PREFIX_PATH "./thirdParty/absl" "./thirdParty/re2")
 
