@@ -160,7 +160,7 @@ QStringList Part::getAllTreeNames()
 {
 
 #ifdef linux
-    QDir dir("data/", "*.db");
+    QDir dir(m_dataPath, "*.db");
 #elif _WIN32
     QDir dir("data\\", "*.db");
 #endif

@@ -1,7 +1,7 @@
-prefix=/home/shahabseddigh/Desktop/testabsl/install
+prefix=/media/ali/Data/Programming/Projects/Part/Gist/GiSTProject/thirdParty/absl
 exec_prefix=${prefix}
-libdir=/home/shahabseddigh/Desktop/testabsl/install/lib
-includedir=/home/shahabseddigh/Desktop/testabsl/install/include
+libdir=/media/ali/Data/Programming/Projects/Part/Gist/GiSTProject/thirdParty/absl/lib
+includedir=/media/ali/Data/Programming/Projects/Part/Gist/GiSTProject/thirdParty/absl/include
 
 Name: absl_flags_internal
 Description: Abseil flags_internal library

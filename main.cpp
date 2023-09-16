@@ -334,10 +334,10 @@ int main(int argc, char *argv[])
 
     QString csvFile;
     #ifdef __linux__
-    csvFile = "/usr/local/part/data_10000.csv";
+    csvFile = "/usr/local/part/data.csv";
     //csvFile = "/media/ali/Data/Programming/Projects/Part/Data/data2.csv";
     //csvFile = "/home/mahmoudmahmoudinik/Data/data2.csv";
-    csvFile = "/home/shahabseddigh/Desktop/data2.csv";
+    //csvFile = "/home/shahabseddigh/Desktop/data2.csv";
     #elif _WIN32
     csvFile = "D:\\Programming\\Projects\\Part\\Data\\data.csv";
     #endif
@@ -368,7 +368,7 @@ int main(int argc, char *argv[])
     std::string queryString;
     std::vector<std::string> queryVector;
     size_t position;
-    Part part("data/");
+    Part part("/usr/local/part/data/");
     bool loadTreeByDefault = false;
     #pragma endregion
 
