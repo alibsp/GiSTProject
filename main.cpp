@@ -334,10 +334,10 @@ int main(int argc, char *argv[])
 
     QString csvFile;
     #ifdef __linux__
-    csvFile = "/usr/local/part/data.csv";
+    //csvFile = "/usr/local/part/data.csv";
     //csvFile = "/media/ali/Data/Programming/Projects/Part/Data/data2.csv";
     //csvFile = "/home/mahmoudmahmoudinik/Data/data2.csv";
-    //csvFile = "/home/shahabseddigh/Desktop/data2.csv";
+    csvFile = "/home/shahabseddigh/Desktop/data2.csv";
     #elif _WIN32
     csvFile = "D:\\Programming\\Projects\\Part\\Data\\data.csv";
     #endif
@@ -368,7 +368,7 @@ int main(int argc, char *argv[])
     std::string queryString;
     std::vector<std::string> queryVector;
     size_t position;
-    Part part("/usr/local/part/data/");
+    Part part("data/");
     bool loadTreeByDefault = false;
     #pragma endregion
 
@@ -458,6 +458,13 @@ int main(int argc, char *argv[])
                 {
                     std::cout << "searching..." << std::endl;
                     queryVector[queryVectorIterator].erase(0, 7);
+
+                    size_t queryWhiteSpacePosition = 0;
+                    while( (queryWhiteSpacePosition = queryVector[queryVectorIterator].find(' ')) != std::string::npos )
+                    {
+                        queryVector[queryVectorIterator].erase(queryWhiteSpacePosition, 1);
+                    }
+
                     if ( (queryVector[queryVectorIterator].find("||") != std::string::npos) || (queryVector[queryVectorIterator].find("&&") != std::string::npos) )
                     {
                         std::vector<UUID> searchResult;

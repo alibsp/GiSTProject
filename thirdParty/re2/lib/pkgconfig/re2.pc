@@ -1,5 +1,5 @@
-includedir=/media/ali/Data/Programming/Projects/Part/Gist/GiSTProject/thirdParty/sources/re2/include
-libdir=/media/ali/Data/Programming/Projects/Part/Gist/GiSTProject/thirdParty/sources/re2/lib
+includedir=/home/shahabseddigh/Desktop/GiSTProject/thirdParty/re2/include
+libdir=/home/shahabseddigh/Desktop/GiSTProject/thirdParty/re2/lib
 
 Name: re2
 Description: RE2 is a fast, safe, thread-friendly regular expression engine.

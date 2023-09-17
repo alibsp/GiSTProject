@@ -8,8 +8,8 @@ read -p "Enter to continue or ctrl+c to stop:    "
 
 mkdir sources
 cd sources
-git clone https://github.com/abseil/abseil-cpp.git
-git clone https://github.com/google/re2.git
+git clone --progress https://github.com/abseil/abseil-cpp.git
+git clone --progress https://github.com/google/re2.git
 
 clear
 
