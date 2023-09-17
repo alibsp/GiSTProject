@@ -3,4 +3,4 @@
 CMakeLists.txt.user
 *cmake-build-debug*
 thirdParty/absl/
-thirdParty/re2
+thirdParty/re2/
