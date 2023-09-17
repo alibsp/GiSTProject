@@ -2,3 +2,5 @@
 .idea
 CMakeLists.txt.user
 *cmake-build-debug*
+thirdParty/absl/
+thirdParty/re2

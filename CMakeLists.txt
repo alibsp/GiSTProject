@@ -4,8 +4,8 @@ project(GiSTProject LANGUAGES CXX)
 
 #===========================================|Attention|===========================================|
 #Modify this variable to set your Qt path! Do not change it directly in CMAKE_PREFIX_PATH
-#set(QT_SEARCH_PATH "/home/shahabseddigh/Qt/6.5.1/gcc_64/lib/cmake/Qt6")
-set(QT_SEARCH_PATH "/opt/Qt5.14.1/5.14.1/gcc_64/lib/cmake/Qt5")
+set(QT_SEARCH_PATH "/home/shahabseddigh/Qt/6.5.1/gcc_64/lib/cmake/Qt6")
+#set(QT_SEARCH_PATH "/opt/Qt5.14.1/5.14.1/gcc_64/lib/cmake/Qt5")
 #===========================================|Attention|===========================================|
 
 set(CMAKE_AUTOUIC ON)
@@ -16,6 +16,23 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 list(APPEND CMAKE_PREFIX_PATH ${QT_SEARCH_PATH})
+
+#======================================|Check if required libraries exist|======================================|
+if( NOT (EXISTS "${PROJECT_SOURCE_DIR}/thirdParty/absl/" AND EXISTS "${PROJECT_SOURCE_DIR}/thirdParty/re2/") )
+	message(STATUS "thirdParty libraries not found inside ${PROJECT_SOURCE_DIR}/thirdParty/! Generating...")
+	
+	execute_process(COMMAND "chmod" "+x" "dependency-builder.sh"
+			WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}/thirdParty/"
+			COMMAND_ECHO STDOUT)
+			
+	execute_process(COMMAND "${PROJECT_SOURCE_DIR}/thirdParty/dependency-builder.sh"
+			WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}/thirdParty/"
+			COMMAND_ECHO STDOUT)
+else()
+	message(STATUS "thirdParty libraries found inside ${PROJECT_SOURCE_DIR}! proceeding...")
+endif()
+#======================================|Check if required libraries exist|======================================|
+
 #For re2 (Relative path! Do not modify!!)
 list(APPEND CMAKE_PREFIX_PATH "./thirdParty/absl" "./thirdParty/re2")
 

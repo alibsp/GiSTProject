@@ -1,7 +1,7 @@
-prefix=/media/ali/Data/Programming/Projects/Part/Gist/GiSTProject/thirdParty/absl
+prefix=/home/shahabseddigh/Desktop/GiSTProject/thirdParty/absl
 exec_prefix=${prefix}
-libdir=/media/ali/Data/Programming/Projects/Part/Gist/GiSTProject/thirdParty/absl/lib
-includedir=/media/ali/Data/Programming/Projects/Part/Gist/GiSTProject/thirdParty/absl/include
+libdir=/home/shahabseddigh/Desktop/GiSTProject/thirdParty/absl/lib
+includedir=/home/shahabseddigh/Desktop/GiSTProject/thirdParty/absl/include
 
 Name: absl_hash_function_defaults
 Description: Abseil hash_function_defaults library
