@@ -26,7 +26,7 @@ cd ../../
 cd re2
 mkdir build
 cd build
-cmake .. -DCMAKE_INSTALL_PREFIX=../../../re2 -Dabsl_DIR=../../../absl/lib/cmake/absl/
+cmake .. -DCMAKE_INSTALL_PREFIX=../../../re2 -Dabsl_DIR=../../absl/lib/cmake/absl/
 cmake --build . --target install
 
 clear
