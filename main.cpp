@@ -1,6 +1,7 @@
 #include <QCoreApplication>
 #include <QDebug>
-#include "headers/part_class.hpp"
+//#include "headers/part_class.hpp"
+#include "headers/socket_interface.hpp"
 
 #include <iostream>
 #include <limits>
@@ -12,16 +13,29 @@
 
 #pragma region shahab_interface
 
-std::queue<std::string> shuntingYard(const std::string &exp)
+/*namespace interface_errno
+{
+    enum interface_errno
+    {
+        OK = 0,
+        illegal_char,
+        extra_open_parenthesis,
+        extra_close_parenthesis
+    };
+}*/
+
+/*interface_errno::interface_errno shuntingYard(std::string &exp, std::queue<std::string>& resQueue)
 {
     #pragma region shuntingYard_variables
-    std::queue<std::string> resQueue;
+    //std::queue<std::string> resQueue;
     std::stack<std::string> opsVectorStack;
     std::string resString;
     std::string charToStr;
     #pragma endregion
 
     #pragma region shuntingYard_main_loop
+    exp = '(' + exp + ')';
+
     int i = 0;
     while (i < exp.length())
     {
@@ -37,18 +51,39 @@ std::queue<std::string> shuntingYard(const std::string &exp)
                 resQueue.push(resString);
                 resString.clear();
             }
-            while ((opsVectorStack.top() != "(") && (!opsVectorStack.empty()))
+
+            if(opsVectorStack.empty())
             {
-                resQueue.push(opsVectorStack.top());
-                opsVectorStack.pop();
+                std::cerr << "Shunting yard extra close Parenthesis detected" << std::endl;
+                return interface_errno::extra_close_parenthesis;
             }
-            if ((opsVectorStack.top() == "("))
+
+            while( !opsVectorStack.empty() )
             {
-                opsVectorStack.pop();
-                i++;
+                if( opsVectorStack.top() != "(" )
+                {
+                    resQueue.push(opsVectorStack.top());
+                    opsVectorStack.pop();
+                }
+                else
+                {
+                    opsVectorStack.pop();
+                    i++;
+                    break;
+                }
             }
         }
-        else if ( (exp[i] >= 39 && exp[i] <= 122) || (exp[i] >= 33 && exp[i] <= 37) )
+        else if (exp[i] == '"')
+        {
+            i++;
+            while (i < exp.length() && exp[i] != '"')
+            {
+                resString += exp[i];
+                i++;
+            }
+            i++;
+        }
+        else if ( (exp[i] >= 39 && exp[i] <= 122) || (exp[i] >= 35 && exp[i] <= 37) )
         {
             resString += exp[i];
             i++;
@@ -78,6 +113,7 @@ std::queue<std::string> shuntingYard(const std::string &exp)
             {
                 if ((opsVectorStack.top() == "&&") || (opsVectorStack.top() == "||"))
                 {
+                    resQueue.push(opsVectorStack.top());
                     opsVectorStack.pop();
                     continue;
                 }
@@ -91,22 +127,28 @@ std::queue<std::string> shuntingYard(const std::string &exp)
             opsVectorStack.push(charToStr);
             i += 2;
         }
+        else if(exp[i] == ' '){i++;}    //Skip white-spaces
+        else
+        {
+            std::cerr << "Illegal character detected in Shunting yard!" << std::endl;
+            return interface_errno::illegal_char;
+        }
     }
     #pragma endregion
 
-    #pragma region shuntingYard_remaining_items_loop
-    while (!opsVectorStack.empty())
+    #pragma region shuntingYard_remaining_items_check
+    if(!opsVectorStack.empty())
     {
-        resQueue.push(opsVectorStack.top());
-        opsVectorStack.pop();
+        std::cerr << "Shunting yard extra open Parenthesis detected" << std::endl;
+        return interface_errno::extra_open_parenthesis;
     }
 
     std::cerr << "ShuntingYard is done!" << std::endl;
-    return resQueue;
+    return interface_errno::OK;
     #pragma endregion
-}
+}*/
 
-void queryExecuter(std::queue<std::string> resQueue, Part &part, std::vector<UUID> &searchResult)
+/*void queryExecuter(std::queue<std::string> resQueue, Part &part, std::vector<UUID> &searchResult)
 {
     std::stack<std::vector<UUID>> parseStack;
 
@@ -151,8 +193,8 @@ void queryExecuter(std::queue<std::string> resQueue, Part &part, std::vector<UUI
             }
         }
     }
-    searchResult = parseStack.top();
-}
+            searchResult = parseStack.top();
+}*/
 
 #pragma endregion
 
@@ -362,7 +404,32 @@ int main(int argc, char *argv[])
     else
         part.loadGists();*/
 
+    Part part("data/");
+    socket_interface socketInterface(&part, csvFile);
 
+    #pragma region socket_interface_warning_message
+    if(!socketInterface.loadTreeByDefault)
+    {
+        std::cout << "Tree have not been loaded! Type [load tree;] or [reload tree;] to load them before anything else; or SIGSEGV will happen!" << std::endl;
+    }
+    else
+    {
+        std::cout << "Tree has been loaded by default; you can change this behavior via [loadTreeByDefault] variable" << std::endl;
+    }
+    #pragma endregion
+
+    while (true)
+    {
+        std::string queryString;
+        std::cout << "GiSTProject:~# ";
+        std::getline(std::cin, queryString);
+        std::cin.clear();
+
+        socketInterface.commandParser(queryString);
+    }
+
+
+    /*
     #pragma region GiSTProject_interface
     #pragma region interface_variables
     std::string queryString;
@@ -430,7 +497,7 @@ int main(int argc, char *argv[])
                     part.loadGists();
                 }
 
-                else if (queryVector[queryVectorIterator].substr(0, 11) == "reload tree")//part.importCSV(csvFile);
+                else if (queryVector[queryVectorIterator].substr(0, 11) == "reload tree")
                 {
                     std::cout << "reloading tree" << std::endl;
                     part.dropGists();
@@ -441,7 +508,7 @@ int main(int argc, char *argv[])
                 {
                     std::cout << "listing all keys:" << std::endl;
                     int i = 0;
-                    for (auto s: part.getAllTreeNames())
+                    for (const auto& s: part.getAllTreeNames())
                     {
                         i++;
                         qDebug() << i << ":" << s;
@@ -459,28 +526,33 @@ int main(int argc, char *argv[])
                     std::cout << "searching..." << std::endl;
                     queryVector[queryVectorIterator].erase(0, 7);
 
-                    size_t queryWhiteSpacePosition = 0;
-                    while( (queryWhiteSpacePosition = queryVector[queryVectorIterator].find(' ')) != std::string::npos )
+                    *//*size_t queryWhiteSpacePosition = 0;
+                    while( (queryWhiteSpacePosition = queryVector[queryVectorIterator].find(' ', queryWhiteSpacePosition)) != std::string::npos )
                     {
                         queryVector[queryVectorIterator].erase(queryWhiteSpacePosition, 1);
-                    }
+                    }*//*
 
+                    *//*
                     if ( (queryVector[queryVectorIterator].find("||") != std::string::npos) || (queryVector[queryVectorIterator].find("&&") != std::string::npos) )
                     {
                         std::vector<UUID> searchResult;
-                        queryExecuter(shuntingYard(queryVector[queryVectorIterator]), part, searchResult);
-
-                        char searchOutput[37]{0};
-                        std::ofstream searchOutputFile;
-                        searchOutputFile.open("searchOutput.bin");
-                        for (auto uuid: searchResult)
+                        std::queue<std::string> resQueue;
+                        if(shuntingYard(queryVector[queryVectorIterator], resQueue) == interface_errno::OK)
                         {
-                            GeneralUtils::binToHexStr(uuid.val, searchOutput);
-                            searchOutputFile << searchOutput << std::endl;
-                        }
-                        searchOutputFile.close();
+                            queryExecuter(resQueue, part, searchResult);
 
-                        std::cout << "Searching is done. searchOutput.bin" << std::endl;
+                            char searchOutput[37]{0};
+                            std::ofstream searchOutputFile;
+                            searchOutputFile.open("searchOutput.bin");
+                            for (auto uuid: searchResult)
+                            {
+                                GeneralUtils::binToHexStr(uuid.val, searchOutput);
+                                searchOutputFile << searchOutput << std::endl;
+                            }
+                            searchOutputFile.close();
+
+                            std::cout << "Searching is done. searchOutput.bin" << std::endl;
+                        }
                     }
                     else if ( (queryVector[queryVectorIterator].find('(') != std::string::npos) || (queryVector[queryVectorIterator].find(')') != std::string::npos) )
                     {
@@ -496,6 +568,26 @@ int main(int argc, char *argv[])
                     else    //Absolute search term or with single :* (old method)
                     {
                         QList<UUID> res = part.findKey(queryVector[queryVectorIterator].c_str());
+                    }
+                    *//*
+
+                    std::vector<UUID> searchResult;
+                    std::queue<std::string> resQueue;
+                    if(shuntingYard(queryVector[queryVectorIterator], resQueue) == interface_errno::OK)
+                    {
+                        queryExecuter(resQueue, part, searchResult);
+
+                        char searchOutput[37]{0};
+                        std::ofstream searchOutputFile;
+                        searchOutputFile.open("searchOutput.bin");
+                        for (auto uuid: searchResult)
+                        {
+                            GeneralUtils::binToHexStr(uuid.val, searchOutput);
+                            searchOutputFile << searchOutput << std::endl;
+                        }
+                        searchOutputFile.close();
+
+                        std::cout << "Searching is done. searchOutput.bin" << std::endl;
                     }
                 }
 
@@ -514,6 +606,7 @@ int main(int argc, char *argv[])
 
     #pragma endregion
 
+*/
 
     #pragma region consoleInterface
     /*std::string cmd;

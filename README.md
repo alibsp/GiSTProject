@@ -1,6 +1,10 @@
 # GiSTProject - Standalone GiST search tree (Disk presistant) based on libgist V2.0 by University of California, Berkeley
 -------------------------------------------------------------------------------------------------------------------------
-> [!IMPORTANT]  
+> [!WARNING]
+> There is a new build system in place!
+> Make sure you read issue #17 before trying to build the code.
+
+> [!NOTE]  
 > The new directory hierarchy has taken place since #3 issue (on Github).
 > You must follow this structure when contributing to this repository as the purpose of each directory and file described below:
  
@@ -75,7 +79,3 @@ Files inside GiSTProject (root directory):
 | 1 | headers/**`include_handler.hpp`** | `#include "macros.hpp"`, `#include "configs.hpp"`, `#include "includes.hpp"` etc. | Unified header file to be included by `.cpp` files for the ease of use, along with manageability |
 | 1 | tests/**`insertTest.cpp`** | `Part::testInserts()` | Functions that perform insertion test into the tree |
 
-------------
-> `GiSTProject.pro` is here only for backward compatibility!
-> You should use `CMakeLists.txt` to open the project!
-> This file will be removed in the next commit!
