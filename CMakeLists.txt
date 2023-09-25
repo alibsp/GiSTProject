@@ -4,7 +4,7 @@ project(GiSTProject LANGUAGES CXX)
 
 #===========================================|Attention|===========================================|
 #Modify this variable to set your Qt path! Do not change it directly in CMAKE_PREFIX_PATH
-set(QT_SEARCH_PATH "/home/shahabseddigh/Qt/6.5.1/gcc_64/lib/cmake/Qt6")
+set(QT_SEARCH_PATH "/home/shahab/Qt/6.5.2/gcc_64/lib/cmake/Qt6/")
 #set(QT_SEARCH_PATH "/opt/Qt5.14.1/5.14.1/gcc_64/lib/cmake/Qt5")
 #===========================================|Attention|===========================================|
 
@@ -59,6 +59,8 @@ add_executable(GiSTProject
   headers/part_class.hpp
   headers/include_handler.hpp
   functions/part_class.cpp
+  functions/socket_interface.cpp
+  headers/socket_interface.hpp
   #core_GiST/gist_support.cpp core_GiST/gist_support.h
 
 )
@@ -66,6 +68,6 @@ target_link_libraries(GiSTProject Qt${QT_VERSION_MAJOR}::Core re2::re2)
 
 include(GNUInstallDirs)
 install(TARGETS GiSTProject
-    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+		LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    	RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
 )
