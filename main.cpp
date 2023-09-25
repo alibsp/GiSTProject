@@ -13,7 +13,7 @@
 
 #pragma region shahab_interface
 
-namespace interface_errno
+/*namespace interface_errno
 {
     enum interface_errno
     {
@@ -22,9 +22,9 @@ namespace interface_errno
         extra_open_parenthesis,
         extra_close_parenthesis
     };
-}
+}*/
 
-interface_errno::interface_errno shuntingYard(std::string &exp, std::queue<std::string>& resQueue)
+/*interface_errno::interface_errno shuntingYard(std::string &exp, std::queue<std::string>& resQueue)
 {
     #pragma region shuntingYard_variables
     //std::queue<std::string> resQueue;
@@ -146,9 +146,9 @@ interface_errno::interface_errno shuntingYard(std::string &exp, std::queue<std::
     std::cerr << "ShuntingYard is done!" << std::endl;
     return interface_errno::OK;
     #pragma endregion
-}
+}*/
 
-void queryExecuter(std::queue<std::string> resQueue, Part &part, std::vector<UUID> &searchResult)
+/*void queryExecuter(std::queue<std::string> resQueue, Part &part, std::vector<UUID> &searchResult)
 {
     std::stack<std::vector<UUID>> parseStack;
 
@@ -194,7 +194,7 @@ void queryExecuter(std::queue<std::string> resQueue, Part &part, std::vector<UUI
         }
     }
             searchResult = parseStack.top();
-}
+}*/
 
 #pragma endregion
 
