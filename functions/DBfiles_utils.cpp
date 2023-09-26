@@ -264,3 +264,18 @@ void Part::uuid_union(vector<UUID> &vec_a, vector<UUID> &vec_b, std::vector<UUID
 
     //return res_union;
 }
+
+void Part::uuid_distinct(vector<UUID> &list, std::vector<UUID>& res_distinct)
+{
+    res_distinct.clear();
+    std::sort(list.begin(), list.end(), uuidLess); // uuidLess:is comparing method
+    //if(list1.size())
+    //UUID last = list[0];
+    if(!list.empty())
+        res_distinct.push_back(list[0]);
+    for(int i=1;i<list.size() ; i++)
+    {
+        if(uuid_cmp(list[i], list[i-1])!=0)
+            res_distinct.push_back(list[i]);
+    }
+}
