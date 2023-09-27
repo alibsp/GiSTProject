@@ -174,7 +174,7 @@ void socket_interface::queryExecuter(std::queue<std::string> resQueue, std::vect
             }
             else
             {
-                (*_part).uuid_union(firstArg, secondArg, operationRes);
+                _part->uuid_union(firstArg, secondArg, operationRes);
                 parseStack.push(operationRes);
                 resQueue.pop();
             }

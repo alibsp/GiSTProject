@@ -266,9 +266,10 @@ void Part::findKeyVectorWithRegexDriver(const std::string& userCompleteRegex, st
     findKeyVectorWithRegex(key, value, remainingRegex, resOut);
 }
 
-void Part::findKeyVectorWithRegex(const char* key, const char* value, const std::string& regexToMatch, std::vector<UUID>& results)
+void Part::findKeyVectorWithRegex(const char* key, const char* value, const std::string& regexToMatch, std::vector<UUID>& out_results)
 {
 
+    std::vector<UUID> results;
     // std::vector<UUID> results;
     gist *myGist=gists[key];
 
@@ -336,5 +337,6 @@ void Part::findKeyVectorWithRegex(const char* key, const char* value, const std:
         }
     }
     //cout<<"Execute Time: "<<timer.nsecsElapsed()<<" ns, record count:"<<results.count()<<endl;
-    return; //results;
+    uuid_distinct(results, out_results);
+    return;
 }

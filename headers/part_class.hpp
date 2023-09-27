@@ -36,6 +36,8 @@ public:
 
     // Do Uinion on two Vector of UUIDs
     void uuid_union(vector<UUID> &vec_a,vector<UUID> &vec_b, std::vector<UUID>& res_union);  //Mahmoudi
+    void uuid_distinct(vector<UUID> &vec_a, std::vector<UUID>& res_distinct);// aldaghi
+
     QStringList getAllTreeNames();  //Mahmoudi
 
     //void hashFileName(char *fileName, char *output);
@@ -50,7 +52,7 @@ public:
     void findKeyVectorDriver(const char * key_value, std::vector<UUID>& resOut);
     void findKeyVector(const char *key, const char *value, vector<UUID>& results);
     void findKeyVectorWithRegexDriver(const std::string& userCompleteRegex, std::vector<UUID>& resOut);
-    void findKeyVectorWithRegex(const char* key, const char* value, const std::string& regexToMatch, std::vector<UUID>& results);
+    void findKeyVectorWithRegex(const char* key, const char* value, const std::string& regexToMatch, std::vector<UUID>& out_results);
     //-----------------------------------------------------------------------------|END Shahab|------------------------------------------------------------------------------------------
 
     QString dataPath() const;
