@@ -1,7 +1,7 @@
-#include <QCoreApplication>
+    #include <QCoreApplication>
 #include <QDebug>
 //#include "headers/part_class.hpp"
-#include "headers/socket_interface.hpp"
+#include "headers/interface.hpp"
 
 #include <iostream>
 #include <limits>
@@ -9,6 +9,70 @@
 #include <queue>
 #include <stack>
 #include <fstream>
+
+int main(int argc, char *argv[])
+{
+    //intTest();
+    //stringTest();
+    qDebug() << "start...";
+
+    QString csvFile;
+    #ifdef __linux__
+    csvFile = "/usr/local/part/data.csv";
+    //csvFile = "/media/ali/Data/Programming/Projects/Part/Data/data2.csv";
+    //csvFile = "/home/mahmoudmahmoudinik/Data/data2.csv";
+    //csvFile = "/home/shahabseddigh/Desktop/data2.csv";
+    #elif _WIN32
+    csvFile = "D:\\Programming\\Projects\\Part\\Data\\data.csv";
+    #endif
+
+    //char aa[100]="   a";
+    //char bb[100]="  b";
+    //cout<<str_cmp((void*)aa, (void*)bb)<<" "<< strcmp(aa, bb)<<endl;
+    //return 0;
+    /*bool clean=true;
+    Part part("data/");
+    GeneralUtils utils;
+    if(clean)
+    {
+        QElapsedTimer timer;
+        timer.start();
+        part.dropGists();
+        qDebug()<<"Drop Gists Time: "<<timer.nsecsElapsed()<<" ns";;
+        timer.start();
+        part.importCSV(csvFile);
+        qDebug()<<"All Insert Time: "<<timer.elapsed()<<" ms";;
+    }
+    else
+        part.loadGists();*/
+
+    Part part("data/");
+    Interface interface(&part, csvFile);
+
+    #pragma region socket_interface_warning_message
+    if(!interface.loadTreeByDefault)
+    {
+        std::cout << "Tree have not been loaded! Type [load tree;] or [reload tree;] to load them before anything else; or SIGSEGV will happen!" << std::endl;
+    }
+    else
+    {
+        std::cout << "Tree has been loaded by default; you can change this behavior via [loadTreeByDefault] variable" << std::endl;
+    }
+    #pragma endregion
+
+    std::string command = "load tree;list keys; search \"year_1401\" & \"username\" in (\"ali:*\", \"hasan\");";
+    //while (true)
+    {
+        std::cout << "GiSTProject:~# "<<command<<std::endl;
+        //std::getline(std::cin, command);
+        //std::cin.clear();
+        interface.parseCommand(command);
+    }
+
+#pragma endregion
+
+}
+
 
 
 #pragma region shahab_interface
@@ -18,7 +82,7 @@
     enum interface_errno
     {
         OK = 0,
-        illegal_char,
+        IllegalCharacter,
         extra_open_parenthesis,
         extra_close_parenthesis
     };
@@ -131,7 +195,7 @@
         else
         {
             std::cerr << "Illegal character detected in Shunting yard!" << std::endl;
-            return interface_errno::illegal_char;
+            return interface_errno::IllegalCharacter;
         }
     }
     #pragma endregion
@@ -366,68 +430,6 @@ int stringTest()
     cout << endl << "Time is:" << timer.elapsed() << endl;
     return 0;
 }
-
-
-int main(int argc, char *argv[])
-{
-    //intTest();
-    //stringTest();
-    qDebug() << "start...";
-
-    QString csvFile;
-    #ifdef __linux__
-    //csvFile = "/usr/local/part/data.csv";
-    //csvFile = "/media/ali/Data/Programming/Projects/Part/Data/data2.csv";
-    //csvFile = "/home/mahmoudmahmoudinik/Data/data2.csv";
-    csvFile = "/home/shahabseddigh/Desktop/data2.csv";
-    #elif _WIN32
-    csvFile = "D:\\Programming\\Projects\\Part\\Data\\data.csv";
-    #endif
-
-    //char aa[100]="   a";
-    //char bb[100]="  b";
-    //cout<<str_cmp((void*)aa, (void*)bb)<<" "<< strcmp(aa, bb)<<endl;
-    //return 0;
-    /*bool clean=true;
-    Part part("data/");
-    GeneralUtils utils;
-    if(clean)
-    {
-        QElapsedTimer timer;
-        timer.start();
-        part.dropGists();
-        qDebug()<<"Drop Gists Time: "<<timer.nsecsElapsed()<<" ns";;
-        timer.start();
-        part.importCSV(csvFile);
-        qDebug()<<"All Insert Time: "<<timer.elapsed()<<" ms";;
-    }
-    else
-        part.loadGists();*/
-
-    Part part("data/");
-    socket_interface socketInterface(&part, csvFile);
-
-    #pragma region socket_interface_warning_message
-    if(!socketInterface.loadTreeByDefault)
-    {
-        std::cout << "Tree have not been loaded! Type [load tree;] or [reload tree;] to load them before anything else; or SIGSEGV will happen!" << std::endl;
-    }
-    else
-    {
-        std::cout << "Tree has been loaded by default; you can change this behavior via [loadTreeByDefault] variable" << std::endl;
-    }
-    #pragma endregion
-
-    while (true)
-    {
-        std::string queryString;
-        std::cout << "GiSTProject:~# ";
-        std::getline(std::cin, queryString);
-        std::cin.clear();
-
-        socketInterface.commandParser(queryString);
-    }
-
 
     /*
     #pragma region GiSTProject_interface
@@ -856,6 +858,3 @@ int main(int argc, char *argv[])
      }
      qDebug()<<"Query Exec Time: "<<queryExecTime/1000000.0<<" ms, record count:"<<results.count();
      qDebug()<<"finish.";*/
-    #pragma endregion
-
-}

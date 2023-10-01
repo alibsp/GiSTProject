@@ -2,16 +2,158 @@
 * Created by th3r0b0t on 9/23/23.
 */
 
-#include "../headers/socket_interface.hpp"
+#include "../headers/interface.hpp"
 #include <QDebug>
 
-socket_interface::socket_interface(Part *part, QString csvFile)
+
+
+Interface::Interface(Part *part, QString csvFile)
 {
     _part = part;
     _csvFile = csvFile;
+    makeSearchParserNFA();
 }
 
-socket_interface::interface_errno socket_interface::shuntingYard(std::string &exp, std::queue<std::string>& resQueue)
+void Interface::makeSearchParserNFA()
+{
+    searchParserNFA.push_back(NFA::State(0,  { {'(', 1}} ));
+    searchParserNFA.push_back(NFA::State(1,  { {'(', 1}, {' ', 1}, {'"', 2} } ));
+    searchParserNFA.push_back(NFA::State(2,  { {'"', 3}, {2}} ));
+    searchParserNFA.push_back(NFA::State(3,  { {' ', 3}, {'&', 4}, {'|', 5}, {')', 6}, {'i', 7}} ));
+    searchParserNFA.push_back(NFA::State(4,  { {' ', 4}, {'"', 2}, {'(', 1} }));
+    searchParserNFA.push_back(NFA::State(5,  { {' ', 5}, {'"', 2}, {'(', 1} }));
+    searchParserNFA.push_back(NFA::State(6,  { {' ', 6}, {')', 6}, {'&', 4}, {'|', 5} }, true));
+    searchParserNFA.push_back(NFA::State(7,  { {'n', 8}}));
+    searchParserNFA.push_back(NFA::State(8, { {' ', 8}, {'(', 9}}));
+    searchParserNFA.push_back(NFA::State(9, { {' ', 9}, {'"', 10}}));
+    searchParserNFA.push_back(NFA::State(10, { {'"', 11}, {10}}));
+    searchParserNFA.push_back(NFA::State(11, { {' ', 11}, {',', 9}, {')', 6}}));
+}
+
+ParserReturnCode Interface::parseSearch(std::string &exp, std::deque<std::string> &resQueue)
+{
+
+    std::stack<std::string> opsVectorStack;
+    std::string token="";
+    std::string value="";
+    std::vector<std::string> values;
+    int openParenthesesCount=0;
+
+    #pragma region NFA engine
+    exp="("+exp+")";
+    unsigned int currentState=0;
+    unsigned int nextState=0;
+    NFA::Transition *tMatch=nullptr;
+    for (size_t i=0;i<exp.size();i++)
+    {
+        char ch=exp[i];
+        tMatch=nullptr;
+        for (auto t : searchParserNFA[currentState].transitions)
+        {
+            if( t.inputChar==ch)
+            {
+                nextState = t.nextState;
+                tMatch = &t;
+                break;
+            } else if( t.allChars)
+            {
+                nextState = t.nextState;
+                tMatch = &t;
+                break;
+            }
+        }
+        if(!tMatch)
+            return ParserReturnCode::IllegalCharacterError;
+    #pragma endregion
+        //Check the number of parentheses in the case that if all characters are not accepted in the current state
+        if(!tMatch->allChars)
+        {
+            if(ch=='(')
+            {
+                openParenthesesCount++;
+                opsVectorStack.push("(");
+            }
+            else if(ch==')')
+            {
+                openParenthesesCount--;
+                while (!opsVectorStack.empty() && opsVectorStack.top() != "(" )
+                {
+                    resQueue.push_back(opsVectorStack.top());
+                    opsVectorStack.pop();
+                }
+                if (!opsVectorStack.empty() && opsVectorStack.top() == "(")
+                    opsVectorStack.pop();
+            }
+            else if(ch=='&')
+                opsVectorStack.push("&");
+            else if(ch=='|')
+            {
+                while (true)
+                {
+                    if (opsVectorStack.top() == "&" || opsVectorStack.top() == "|")
+                    {
+                        resQueue.push_back(opsVectorStack.top());
+                        opsVectorStack.pop();
+                        continue;
+                    }
+                    else
+                        break;
+                }
+                opsVectorStack.push("|");
+            }
+        }
+        if(currentState==1 || currentState==4 || currentState==5)
+            token.clear();
+        if(currentState==2 && nextState == 2)
+            token+=ch;
+
+        if(currentState==2 && nextState == 3)// use of token
+        {
+            //std::cout<<"token:"<<token<<std::endl;
+            resQueue.push_back(token);
+        }
+        if(currentState==8)
+            values.clear();
+        if(currentState==9)
+            value.clear();
+        if(currentState==10 && nextState == 10)
+            value+=ch;
+
+        if(currentState==10 && nextState == 11)// use of value
+        {
+            //std::cout<<"value:"<<value<<std::endl;
+            values.push_back(value);
+        }
+        if(currentState==11 && nextState == 6)// use of values
+        {
+            for (size_t j=0; j<values.size(); j++)
+            {
+                if(j==0)
+                    resQueue.back() = token+"_"+values[j];
+                else
+                {
+                    resQueue.push_back(token+"_"+values[j]);
+                    resQueue.push_back("|");
+                }
+            }
+        }
+
+        currentState = nextState;
+    }
+    if(openParenthesesCount>0)
+        return ParserReturnCode::ExtraOpenParenthesisError;
+    if(openParenthesesCount<0)
+        return ParserReturnCode::ExtraCloseParenthesisError;
+    if(!searchParserNFA[currentState].accept)
+        return ParserReturnCode::IllegalCharacterError;
+
+    for(const auto &q : resQueue)
+        std::cout<<q<<std::endl;
+    return ParserReturnCode::OK;
+}
+
+
+ParserReturnCode Interface::shuntingYard(std::string &exp, std::queue<std::string>& resQueue)
 {
     #pragma region shuntingYard_variables
     //std::queue<std::string> resQueue;
@@ -42,7 +184,7 @@ socket_interface::interface_errno socket_interface::shuntingYard(std::string &ex
             if(opsVectorStack.empty())
             {
                 std::cerr << "Shunting yard extra close Parenthesis detected" << std::endl;
-                return socket_interface::extra_close_parenthesis;
+                return ParserReturnCode::ExtraCloseParenthesisError;
             }
 
             while( !opsVectorStack.empty() )
@@ -75,7 +217,7 @@ socket_interface::interface_errno socket_interface::shuntingYard(std::string &ex
             resString += exp[i];
             i++;
         }
-        else if (exp[i] == '&' && exp[i + 1] == '&')
+        else if (exp[i] == '&')
         {
             if (!resString.empty())
             {
@@ -83,11 +225,11 @@ socket_interface::interface_errno socket_interface::shuntingYard(std::string &ex
                 resString.clear();
             }
             charToStr = exp[i];
-            charToStr += exp[i + 1];
+            //charToStr += exp[i + 1];
             opsVectorStack.push(charToStr);
-            i += 2;
+            i += 1;
         }
-        else if (exp[i] == '|' && exp[i + 1] == '|')
+        else if (exp[i] == '|')
         {
             if (!resString.empty())
             {
@@ -98,7 +240,7 @@ socket_interface::interface_errno socket_interface::shuntingYard(std::string &ex
             //while( j>0 )
             while (true)
             {
-                if ((opsVectorStack.top() == "&&") || (opsVectorStack.top() == "||"))
+                if ((opsVectorStack.top() == "&") || (opsVectorStack.top() == "|"))
                 {
                     resQueue.push(opsVectorStack.top());
                     opsVectorStack.pop();
@@ -110,15 +252,15 @@ socket_interface::interface_errno socket_interface::shuntingYard(std::string &ex
                 }
             }
             charToStr = exp[i];
-            charToStr += exp[i + 1];
+            //charToStr += exp[i + 1];
             opsVectorStack.push(charToStr);
-            i += 2;
+            i += 1;
         }
         else if(exp[i] == ' '){i++;}    //Skip white-spaces
         else
         {
             std::cerr << "Illegal character detected in Shunting yard!" << std::endl;
-            return socket_interface::interface_errno::illegal_char;
+            return ParserReturnCode::IllegalCharacterError;
         }
     }
     #pragma endregion
@@ -127,21 +269,21 @@ socket_interface::interface_errno socket_interface::shuntingYard(std::string &ex
     if(!opsVectorStack.empty())
     {
         std::cerr << "Shunting yard extra open Parenthesis detected" << std::endl;
-        return socket_interface::interface_errno::extra_open_parenthesis;
+        return ParserReturnCode::ExtraOpenParenthesisError;
     }
 
     std::cerr << "ShuntingYard is done!" << std::endl;
-    return socket_interface::interface_errno::OK;
+    return ParserReturnCode::OK;
     #pragma endregion
 }
 
-void socket_interface::queryExecuter(std::queue<std::string> resQueue, std::vector<UUID> &searchResult)
+void Interface::execQuery(std::deque<std::string> resQueue, std::vector<UUID> &searchResult)
 {
     std::stack<std::vector<UUID>> parseStack;
 
     while (!resQueue.empty())
     {
-        if (((resQueue.front() != "&&") && (resQueue.front() != "||")))
+        if (((resQueue.front() != "&") && (resQueue.front() != "|")))
         {
             std::vector<UUID> findKeyResult;
             //if statement is newly added and hasn't been FULLY tested yet!   //Shahab
@@ -154,7 +296,7 @@ void socket_interface::queryExecuter(std::queue<std::string> resQueue, std::vect
                 (*_part).findKeyVectorDriver(resQueue.front().c_str(), findKeyResult);
             }
             parseStack.push(findKeyResult);
-            resQueue.pop();
+            resQueue.pop_front();
         }
         else
         {
@@ -166,26 +308,28 @@ void socket_interface::queryExecuter(std::queue<std::string> resQueue, std::vect
             firstArg = parseStack.top();
             parseStack.pop();
 
-            if (resQueue.front() == "&&")
+            if (resQueue.front() == "&")
             {
                 (*_part).uuid_intersect(firstArg, secondArg, operationRes);
                 parseStack.push(operationRes);
-                resQueue.pop();
+                resQueue.pop_front();
             }
             else
             {
                 _part->uuid_union(firstArg, secondArg, operationRes);
                 parseStack.push(operationRes);
-                resQueue.pop();
+                resQueue.pop_front();
             }
         }
     }
     searchResult = parseStack.top();
 }
 
-void socket_interface::commandParser(std::string& queryString)
+void Interface::parseCommand(std::string& queryString)
 {
     #pragma region commandParser_main_loop
+    std::vector<std::string> queryVector;
+    size_t position;
 
     #pragma region commandParser_splitting_queries
     while ((position = queryString.find(';')) != std::string::npos)
@@ -204,7 +348,7 @@ void socket_interface::commandParser(std::string& queryString)
                 break;
             }
         }
-        queryVector.push_back(queryString.substr(startPosition, position));
+        queryVector.push_back(queryString.substr(startPosition, position - startPosition));
         queryString.erase(0, position + 1);
     }
     if (!queryString.empty())
@@ -265,7 +409,7 @@ void socket_interface::commandParser(std::string& queryString)
                 {
                     std::vector<UUID> searchResult;
                     std::queue<std::string> resQueue;
-                    if(shuntingYard(queryVector[queryVectorIterator], resQueue) == interface_errno::OK)
+                    if(shuntingYard(queryVector[queryVectorIterator], resQueue) == ParserErrorCode::OK)
                     {
                         queryExecuter(resQueue, part, searchResult);
 
@@ -300,23 +444,30 @@ void socket_interface::commandParser(std::string& queryString)
                 */
 
                 std::vector<UUID> searchResult;
-                std::queue<std::string> resQueue;
-                if(shuntingYard(queryVector[queryVectorIterator], resQueue) == interface_errno::OK)
+                std::deque<std::string> resQueue;
+                ParserReturnCode error=parseSearch(queryVector[queryVectorIterator], resQueue);
+                if(error == ParserReturnCode::OK)
                 {
-                    queryExecuter(resQueue, searchResult);
+                    QElapsedTimer timer;
+                    timer.start();
+                    execQuery(resQueue, searchResult);
+                    int elapsedTime=timer.nsecsElapsed();
 
                     char searchOutput[37]{0};
                     std::ofstream searchOutputFile;
                     searchOutputFile.open("searchOutput.bin");
-                    for (auto uuid: searchResult)
+                    for (const auto &uuid: searchResult)
                     {
                         GeneralUtils::binToHexStr(uuid.val, searchOutput);
                         searchOutputFile << searchOutput << std::endl;
                     }
                     searchOutputFile.close();
 
-                    std::cout << "Searching is done. searchOutput.bin" << std::endl;
+                    std::cout << "Searching is done. searchOutput.bin. time elapsed:"<<elapsedTime/1000000.0<< " ms; Count:"<< searchResult.size()<< std::endl;
                 }
+                else
+                    std::cerr << "Search Parsing error! Error: " <<static_cast<int>(error)<< std::endl;
+
             }
 
             else
