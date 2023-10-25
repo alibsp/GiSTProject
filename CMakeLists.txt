@@ -1,12 +1,12 @@
 cmake_minimum_required(VERSION 3.14)
 
-project(KAJ LANGUAGES CXX)
+project(GiSTProject LANGUAGES CXX)
 
 #===========================================|Attention|===========================================|
 #Modify this variable to set your Qt path! Do not change it directly in CMAKE_PREFIX_PATH
-#set(QT_SEARCH_PATH "/home/shahabseddigh/Qt/6.5.1/gcc_64/lib/cmake/Qt6")
+set(QT_SEARCH_PATH "/home/shahabseddigh/Qt/6.5.1/gcc_64/lib/cmake/Qt6")
 #set(QT_SEARCH_PATH "/opt/Qt5.14.1/5.14.1/gcc_64/lib/cmake/Qt5")
-set(QT_SEARCH_PATH "/opt/Qt/6.4.0/gcc_64/lib/cmake/Qt6/")
+#set(QT_SEARCH_PATH "/opt/Qt/6.4.0/gcc_64/lib/cmake/Qt6/")
 #===========================================|Attention|===========================================|
 
 set(CMAKE_AUTOUIC ON)
@@ -37,13 +37,13 @@ endif()
 #For re2 (Relative path! Do not modify!!)
 list(APPEND CMAKE_PREFIX_PATH "./thirdParty/absl" "./thirdParty/re2")
 
-find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Core)
-find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Core)
+find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Core Network)
+find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Core Network)
 #For re2
 find_package(absl REQUIRED)
 find_package(re2 REQUIRED)
 
-add_executable(KAJ
+add_executable(GiSTProject
   main.cpp
   functions/DiskIO.cpp
   functions/DB_CRUD/create.cpp
@@ -60,15 +60,19 @@ add_executable(KAJ
   headers/part_class.hpp
   headers/include_handler.hpp
   functions/part_class.cpp
-  functions/interface.cpp
-  headers/interface.hpp
-  #core_GiST/gist_support.cpp core_GiST/gist_support.h
+		functions/commMan.cpp
+		headers/commMan.hpp
+		headers/nfaQueryParser.hpp
+		functions/nfaQueryParser.cpp
+		headers/tcpInterfaceQT.hpp
+		functions/tcpInterfaceQT.cpp
+		#core_GiST/gist_support.cpp core_GiST/gist_support.h
 
 )
-target_link_libraries(KAJ Qt${QT_VERSION_MAJOR}::Core re2::re2)
+target_link_libraries(GiSTProject Qt${QT_VERSION_MAJOR}::Core re2::re2 Qt${QT_VERSION_MAJOR}::Network)
 
 include(GNUInstallDirs)
-install(TARGETS KAJ
+install(TARGETS GiSTProject
 	LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
 	RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
 )

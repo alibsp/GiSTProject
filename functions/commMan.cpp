@@ -2,19 +2,19 @@
 * Created by th3r0b0t on 9/23/23.
 */
 
-#include "../headers/interface.hpp"
+#include "../headers/commMan.hpp"
 #include <QDebug>
 
 
 
-Interface::Interface(Part *part, QString csvFile)
+commMan::commMan(Part *part, QString csvFile)
 {
     _part = part;
     _csvFile = csvFile;
-    makeSearchParserNFA();
+    _nfaQueryParserObj = new nfaQueryParser();
 }
 
-void Interface::makeSearchParserNFA()
+/*void commMan::makeSearchParserNFA()
 {
     searchParserNFA.push_back(NFA::State(0,  { {'(', 1}} ));
     searchParserNFA.push_back(NFA::State(1,  { {'(', 1}, {' ', 1}, {'"', 2} } ));
@@ -28,9 +28,9 @@ void Interface::makeSearchParserNFA()
     searchParserNFA.push_back(NFA::State(9, { {' ', 9}, {'"', 10}}));
     searchParserNFA.push_back(NFA::State(10, { {'"', 11}, {10}}));
     searchParserNFA.push_back(NFA::State(11, { {' ', 11}, {',', 9}, {')', 6}}));
-}
+}*/
 
-ParserReturnCode Interface::parseSearch(std::string &exp, std::deque<std::string> &resQueue)
+/*ParserReturnCode commMan::parseSearch(std::string &exp, std::deque<std::string> &resQueue)
 {
 
     std::stack<std::string> opsVectorStack;
@@ -150,10 +150,10 @@ ParserReturnCode Interface::parseSearch(std::string &exp, std::deque<std::string
     for(const auto &q : resQueue)
         std::cout<<q<<std::endl;
     return ParserReturnCode::OK;
-}
+}*/
 
-
-ParserReturnCode Interface::shuntingYard(std::string &exp, std::queue<std::string>& resQueue)
+//[[deprecated("Use nfaQueryParser class instead.")]]
+ParserReturnCode commMan::shuntingYard(std::string &exp, std::queue<std::string>& resQueue)
 {
     #pragma region shuntingYard_variables
     //std::queue<std::string> resQueue;
@@ -277,7 +277,7 @@ ParserReturnCode Interface::shuntingYard(std::string &exp, std::queue<std::strin
     #pragma endregion
 }
 
-void Interface::execQuery(std::deque<std::string> resQueue, std::vector<UUID> &searchResult)
+void commMan::execQuery(std::deque<std::string> resQueue, std::vector<UUID> &searchResult)
 {
     std::stack<std::vector<UUID>> parseStack;
 
@@ -325,7 +325,7 @@ void Interface::execQuery(std::deque<std::string> resQueue, std::vector<UUID> &s
     searchResult = parseStack.top();
 }
 
-void Interface::parseCommand(std::string& queryString)
+void commMan::commandHandler(std::string& queryString, std::vector<UUID>& searchCommandResult)
 {
     #pragma region commandParser_main_loop
     std::vector<std::string> queryVector;
@@ -443,17 +443,18 @@ void Interface::parseCommand(std::string& queryString)
                 }
                 */
 
-                std::vector<UUID> searchResult;
+                //std::vector<UUID> searchResult; //Defined as parameter now!
                 std::deque<std::string> resQueue;
-                ParserReturnCode error=parseSearch(queryVector[queryVectorIterator], resQueue);
-                if(error == ParserReturnCode::OK)
+                nfaQueryParserReturnCode error = _nfaQueryParserObj->parse(queryVector[queryVectorIterator], resQueue);
+                //ParserReturnCode error=parseSearch(queryVector[queryVectorIterator], resQueue);
+                if(error == nfaQueryParserReturnCode::OK)
                 {
                     QElapsedTimer timer;
                     timer.start();
-                    execQuery(resQueue, searchResult);
+                    execQuery(resQueue, searchCommandResult);
                     int elapsedTime=timer.nsecsElapsed();
 
-                    char searchOutput[37]{0};
+                    /*char searchOutput[37]{0};
                     std::ofstream searchOutputFile;
                     searchOutputFile.open("searchOutput.bin");
                     for (const auto &uuid: searchResult)
@@ -461,9 +462,10 @@ void Interface::parseCommand(std::string& queryString)
                         GeneralUtils::binToHexStr(uuid.val, searchOutput);
                         searchOutputFile << searchOutput << std::endl;
                     }
-                    searchOutputFile.close();
+                    searchOutputFile.close();*/
 
-                    std::cout << "Searching is done. searchOutput.bin. time elapsed:"<<elapsedTime/1000000.0<< " ms; Count:"<< searchResult.size()<< std::endl;
+                    std::cout << "Searching is done. time elapsed:"<<elapsedTime/1000000.0<< " ms; Count:"<< searchCommandResult.size()<< std::endl;
+                    //std::cout << "Searching is done. searchOutput.bin. time elapsed:"<<elapsedTime/1000000.0<< " ms; Count:"<< searchResult.size()<< std::endl;
                 }
                 else
                     std::cerr << "Search Parsing error! Error: " <<static_cast<int>(error)<< std::endl;

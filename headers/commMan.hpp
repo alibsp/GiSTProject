@@ -5,6 +5,7 @@
 #define SOCKET_INTERFACE_H
 
 #include "part_class.hpp"
+#include "nfaQueryParser.hpp"
 
 enum class ParserReturnCode
 {
@@ -14,7 +15,7 @@ enum class ParserReturnCode
     ExtraCloseParenthesisError
 };
 
-class NFA
+/*class NFA
 {
 public:
     struct Transition
@@ -51,28 +52,27 @@ public:
         }
 
     };
-};
+};*/
 
-class Interface
+class commMan
 {
 private:
-
-
-    std::vector<NFA::State> searchParserNFA;
-
     Part* _part;
     QString _csvFile;
+    nfaQueryParser* _nfaQueryParserObj;
 
+    /*std::vector<NFA::State> searchParserNFA;
     void makeSearchParserNFA();
-    ParserReturnCode parseSearch(std::string &exp, std::deque<std::string> &resQueue);
-    ParserReturnCode shuntingYard(std::string &exp, std::queue<std::string>& resQueue);
+    ParserReturnCode parseSearch(std::string &exp, std::deque<std::string> &resQueue);*/
+
+    [[deprecated("Use nfaQueryParser class instead.")]] ParserReturnCode shuntingYard(std::string &exp, std::queue<std::string>& resQueue);
     void execQuery(std::deque<string> resQueue, std::vector<UUID> &searchResult);
 public:
 
-    Interface(Part* part, QString csvFile);
+    commMan(Part* part, QString csvFile);
     bool loadTreeByDefault = false;
 
-    void parseCommand(std::string& queryString);
+    void commandHandler(std::string& queryString, std::vector<UUID>& searchCommandResult);
 };
 
 
