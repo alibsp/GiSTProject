@@ -1,7 +1,6 @@
-    #include <QCoreApplication>
+#include <QCoreApplication>
 #include <QDebug>
-//#include "headers/part_class.hpp"
-#include "headers/interface.hpp"
+#include "headers/tcpInterfaceQT.hpp"
 
 #include <iostream>
 #include <limits>
@@ -18,10 +17,10 @@ int main(int argc, char *argv[])
 
     QString csvFile;
     #ifdef __linux__
-    csvFile = "/usr/local/part/data.csv";
+    //csvFile = "/usr/local/part/data.csv";
     //csvFile = "/media/ali/Data/Programming/Projects/Part/Data/data2.csv";
     //csvFile = "/home/mahmoudmahmoudinik/Data/data2.csv";
-    //csvFile = "/home/shahabseddigh/Desktop/data2.csv";
+    csvFile = "/home/shahabseddigh/Desktop/data2.csv";
     #elif _WIN32
     csvFile = "D:\\Programming\\Projects\\Part\\Data\\data.csv";
     #endif
@@ -46,8 +45,18 @@ int main(int argc, char *argv[])
     else
         part.loadGists();*/
 
+    QCoreApplication app(argc, argv);
     Part part("data/");
-    Interface interface(&part, csvFile);
+    tcpInterfaceQT tcpInterface(part, csvFile);
+
+    return app.exec();
+
+
+
+
+
+    //==========================================================================================================//
+    /*commMan interface(&part, csvFile);
 
     #pragma region socket_interface_warning_message
     if(!interface.loadTreeByDefault)
@@ -66,10 +75,11 @@ int main(int argc, char *argv[])
         std::cout << "GiSTProject:~# "<<command<<std::endl;
         //std::getline(std::cin, command);
         //std::cin.clear();
-        interface.parseCommand(command);
-    }
+        interface.commandHandler(command);
+    }*/
+    //==========================================================================================================//
 
-#pragma endregion
+    #pragma endregion
 
 }
 
